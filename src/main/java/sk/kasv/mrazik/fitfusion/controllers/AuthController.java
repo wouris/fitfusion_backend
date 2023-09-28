@@ -53,10 +53,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
         }
 
-        // hash password sent in request
-        password = this.encoder.encode(password);
-
-        if(!user.password().equals(password)){
+        if(!this.encoder.matches(password, user.password())){
             JsonResponse response = new JsonResponse("Wrong password!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         } else {
