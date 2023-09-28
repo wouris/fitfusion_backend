@@ -1,5 +1,6 @@
 package sk.kasv.mrazik.fitfusion.utils;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.bson.types.ObjectId;
 import sk.kasv.mrazik.fitfusion.models.user.auth.Token;
 
@@ -11,6 +12,10 @@ public class TokenUtil {
 
     private TokenUtil() {
         this.tokens = new HashMap<>();
+    }
+
+    public static String generateToken() {
+        return RandomStringUtils.random(40, true, true);
     }
 
     private static class TokenHolder {
