@@ -3,8 +3,10 @@ package sk.kasv.mrazik.fitfusion.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import sk.kasv.mrazik.fitfusion.database.CommentRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
+import sk.kasv.mrazik.fitfusion.models.social.Comment;
 import sk.kasv.mrazik.fitfusion.models.social.Post;
 import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
@@ -35,13 +37,15 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public class PostController {
 
     private final PostRepository postRepo;
+    private final CommentRepository commentRepo;
 
-    public PostController(PostRepository postRepo) {
+    public PostController(PostRepository postRepo, CommentRepository commentRepo) {
         this.postRepo = postRepo;
+        this.commentRepo = commentRepo;
     }
     
     @PostMapping("/upload")
-    public ResponseEntity<?> postMethodName(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public ResponseEntity<?> uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
 
         Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
@@ -92,5 +96,28 @@ public class PostController {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Error while reading image!");
             return ResponseEntity.internalServerError().body(GsonUtil.getInstance().toJson(response));
         }
+    }
+
+    @PostMapping("/comment")
+    public ResponseEntity<?> commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
+
+        if(!TokenUtil.getInstance().isTokenValid(id, token)){
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+        
+        comment.id(UUID.randomUUID());
+        comment.userId(id);
+
+        if(comment.userId() == null || comment.postId() == null || comment.content() == null){
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Missing data!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        commentRepo.save(comment);
+
+        JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Comment created!");
+        return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(response));
     }
 }

@@ -16,6 +16,7 @@ public class User {
 
     @Id
     private UUID id;
+    private String email;
     private String username;
     private String password;
 
@@ -23,12 +24,6 @@ public class User {
     private Role role;
 
     public User(){
-    }
-
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.role = Role.USER;
     }
 
     public User(String username, String password, Role role) {

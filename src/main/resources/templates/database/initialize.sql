@@ -10,7 +10,7 @@ CREATE TABLE users (
     username VARCHAR(255) UNIQUE,
     email VARCHAR(255) UNIQUE,
     password VARCHAR(255),
-    registration_date DATETIME
+    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
 
 -- Create the 'account_info' table
@@ -52,4 +52,13 @@ CREATE TABLE posts (
   	image MEDIUMBLOB,
   	description VARCHAR(255),
   	FOREIGN KEY (userID) REFERENCES users(id)
-)
+);
+
+CREATE TABLE comments (
+        id UUID PRIMARY KEY,
+        user_id UUID,
+        post_id UUID,
+        comment VARCHAR(255),
+        FOREIGN KEY (userID) REFERENCES users(id),
+        FOREIGN KEY (postID) REFERENCES posts(id)
+);
