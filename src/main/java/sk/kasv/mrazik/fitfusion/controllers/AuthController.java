@@ -2,7 +2,6 @@ package sk.kasv.mrazik.fitfusion.controllers;
 
 
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,13 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
-import sk.kasv.mrazik.fitfusion.models.user.Role;
+import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.models.user.User;
 import sk.kasv.mrazik.fitfusion.models.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -81,7 +81,7 @@ public class AuthController {
         // hash password sent in request
         password = this.encoder.encode(password);
 
-        user = new User(new ObjectId(), username, password, Role.USER);
+        user = new User(UUID.randomUUID(), username, password, Role.USER);
         userRepo.save(user);
 
         String token = TokenUtil.generateToken();

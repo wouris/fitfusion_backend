@@ -8,6 +8,7 @@ import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.social.Post;
 import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
+import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -15,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Iterator;
+import java.util.UUID;
 
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
@@ -25,6 +27,7 @@ import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 
 @RestController
@@ -38,9 +41,21 @@ public class PostController {
     }
     
     @PostMapping("/upload")
-    public ResponseEntity<?> postMethodName(@RequestBody Post data) {
+    public ResponseEntity<?> postMethodName(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+
+        Post post = GsonUtil.getInstance().fromJson(data, Post.class);
+
+        if(!TokenUtil.getInstance().isTokenValid(id, token)){
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        if(post.image() == null || post.description() == null || post.author() == null){
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Missing data!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
         
-        byte[] imageBytes = Base64.getDecoder().decode(data.image());
+        byte[] imageBytes = Base64.getDecoder().decode(post.image());
 
         ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
         
@@ -66,9 +81,9 @@ public class PostController {
             // Convert the compressed image bytes back to Base64
             String compressedBase64Image = Base64.getEncoder().encodeToString(compressedImageBytes);
 
-            data = new Post(compressedBase64Image, data.description(), data.author());
+            post = new Post(compressedBase64Image, post.description(), post.author());
 
-            postRepo.save(data);
+            postRepo.save(post);
 
             JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Post created!");
             return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(response));
