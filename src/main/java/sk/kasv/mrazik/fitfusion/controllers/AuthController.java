@@ -1,10 +1,8 @@
 package sk.kasv.mrazik.fitfusion.controllers;
 
-import org.apache.commons.lang3.RandomStringUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,15 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
+import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.user.Role;
 import sk.kasv.mrazik.fitfusion.models.user.User;
 import sk.kasv.mrazik.fitfusion.models.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -42,19 +38,19 @@ public class AuthController {
         String password = data.password();
 
         if(StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            JsonResponse response = new JsonResponse("Username or Password is blank!");
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Username or Password is blank!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         }
 
         User user = userRepo.findByUsername(username);
 
         if(user == null){
-            JsonResponse response = new JsonResponse("User not found!");
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "User not found!");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
         }
 
         if(!this.encoder.matches(password, user.password())){
-            JsonResponse response = new JsonResponse("Wrong password!");
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong password!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         } else {
             String token = TokenUtil.generateToken();
@@ -66,18 +62,19 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserAuth data){
+        String email = data.email();
         String username = data.username();
         String password = data.password();
 
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            JsonResponse response = new JsonResponse("Username or Password is blank!");
+        if(StringUtils.isBlank(email) || StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Some of the data provided is blank!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         }
 
         User user = userRepo.findByUsername(username);
 
         if(user != null){
-            JsonResponse response = new JsonResponse("User already exists!");
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "User already exists!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         }
 
@@ -91,25 +88,5 @@ public class AuthController {
         TokenUtil.getInstance().addToken(user.id(), token);
         Map<String, String> response = Map.of("token", token);
         return ResponseEntity.status(HttpStatus.OK).body(GsonUtil.getInstance().toJson(response));
-    }
-
-    /**
-     * This endpoint is used every time application is called to check if token is still valid
-     * @param data
-     * @return true if token is valid, false if token is not valid or user not found
-     */
-    @PostMapping("/checkToken")
-    public ResponseEntity<Boolean> checkToken(@RequestBody User data) {
-
-        User user = userRepo.findByUsername(data.username());
-
-        if(user != null){
-            boolean valid = TokenUtil.getInstance().getToken(user.id())
-                    .expires().isAfter(LocalDateTime.now());
-
-            return ResponseEntity.status(HttpStatus.OK).body(valid);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-        }
     }
 }

@@ -1,4 +1,6 @@
 package sk.kasv.mrazik.fitfusion.models.util;
 
-public record JsonResponse(String response) {
+import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
+
+public record JsonResponse(ResponseType type, String message) {
 }

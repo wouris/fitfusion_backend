@@ -5,9 +5,17 @@ This is a backend part of our application called **FitFusion**. Application is f
 ## Available Endpoints
 
 Here are all of the endpoints with descriptions and responses
+
 ### Auth
 
-| Endpoint         | Description        | Request Body Example                           | Response Body Example    |
-|------------------|--------------------|------------------------------------------------|--------------------------|
-| `/auth/register` | Registers the user | `{"username": "string", "password": "string"}` | `{"response": "string"}` |
-| `/auth/login`    | Signs in the user  | `{"username": "string", "password": "string"}` | `{"response": "string"}` |
+| Endpoint         | Description        | Request Body Example                           | Response Body Example                     |
+|:----------------:|:------------------:|:----------------------------------------------:|:-----------------------------------------:|
+| `/auth/register` | Registers the user | `{"username": "string", "password": "string"}` | `{"type": "string", "message": "string"}` |
+| `/auth/login`    | Signs in the user  | `{"username": "string", "password": "string"}` | `{"type": "string", "message": "string"}` |
+
+
+### Social
+
+| Endpoint            | Description                       | Request Body Example                                                          | Response Body Example                     |
+|:-------------------:|:---------------------------------:|:-----------------------------------------------------------------------------:|:-----------------------------------------:|
+| `/api/posts/upload` | Uploads the image and description | `{"image": "string (base64)", "description": "string", "author": "ObjectId"}` | `{"type": "string", "message": "string"}` |
