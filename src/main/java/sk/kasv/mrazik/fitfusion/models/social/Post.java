@@ -1,10 +1,9 @@
 package sk.kasv.mrazik.fitfusion.models.social;
 
-import java.util.UUID;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
+import java.util.UUID;
 
 @Entity(name = "posts")
 public class Post {
@@ -13,15 +12,16 @@ public class Post {
     private UUID id;
     private String image; // base64
     private String description;
-    private String author;
-    
-    public Post() {}
+    private UUID authorId;
 
-    public Post(String image, String description, String author) {
+    public Post() {
+    }
+
+    public Post(String image, String description, UUID authorId) {
         this.id = UUID.randomUUID();
         this.image = image;
         this.description = description;
-        this.author = author;
+        this.authorId = authorId;
     }
 
     public UUID id() {
@@ -36,8 +36,8 @@ public class Post {
         return this.description;
     }
 
-    public String author() {
-        return this.author;
+    public UUID authorId() {
+        return this.authorId;
     }
 
     public void image(String image) {
@@ -48,7 +48,7 @@ public class Post {
         this.description = description;
     }
 
-    public void author(String author) {
-        this.author = author;
+    public void authorId(UUID author) {
+        this.authorId = author;
     }
 }

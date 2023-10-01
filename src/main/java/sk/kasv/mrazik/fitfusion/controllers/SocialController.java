@@ -1,8 +1,8 @@
 package sk.kasv.mrazik.fitfusion.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.CommentRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
@@ -12,6 +12,11 @@ import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,50 +25,40 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.UUID;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-
 
 @RestController
-@RequestMapping("/api/posts")
-public class PostController {
+@RequestMapping("/api/social")
+public class SocialController {
 
     private final PostRepository postRepo;
     private final CommentRepository commentRepo;
 
-    public PostController(PostRepository postRepo, CommentRepository commentRepo) {
+    public SocialController(PostRepository postRepo, CommentRepository commentRepo) {
         this.postRepo = postRepo;
         this.commentRepo = commentRepo;
     }
-    
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+
+    @PostMapping("/post/upload")
+    public ResponseEntity<String> uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
 
         Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
-        if(!TokenUtil.getInstance().isTokenValid(id, token)){
+        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
 
-        if(post.image() == null || post.description() == null || post.author() == null){
+        // don't have to check for post.authorId() because it is in request header and checked by token
+        if (post.image() == null || post.description() == null) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Missing data!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
-        
+
         byte[] imageBytes = Base64.getDecoder().decode(post.image());
 
         ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
-        
-        try{
+
+        try {
             BufferedImage bufferedImage = ImageIO.read(bis);
 
             // Create an output stream to store the compressed image
@@ -85,32 +80,64 @@ public class PostController {
             // Convert the compressed image bytes back to Base64
             String compressedBase64Image = Base64.getEncoder().encodeToString(compressedImageBytes);
 
-            post = new Post(compressedBase64Image, post.description(), post.author());
+            post = new Post(compressedBase64Image, post.description(), id);
 
             postRepo.save(post);
 
             JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Post created!");
             return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(response));
-        } catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Error while reading image!");
             return ResponseEntity.internalServerError().body(GsonUtil.getInstance().toJson(response));
         }
     }
 
-    @PostMapping("/comment")
-    public ResponseEntity<?> commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
+    @DeleteMapping("/post/remove")
+    public ResponseEntity<String> removePost(@RequestBody String postId, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        Post post = GsonUtil.getInstance().fromJson(postId, Post.class);
 
-        if(!TokenUtil.getInstance().isTokenValid(id, token)){
+        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
-        
+
+        if (post.id() == null) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Missing data!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        // check if the post exists
+        if (!postRepo.existsById(post.id())) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Post not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
+        }
+
+        // check if the post belongs to the user
+        if (!postRepo.findById(post.id()).get().authorId().equals(id)) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Post does not belong to the user!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GsonUtil.getInstance().toJson(response));
+        }
+
+        postRepo.deleteById(post.id());
+
+        JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Post deleted!");
+        return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(response));
+    }
+
+    @PostMapping("/comment/upload")
+    public ResponseEntity<String> commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
+
+        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
         comment.id(UUID.randomUUID());
         comment.userId(id);
 
-        if(comment.userId() == null || comment.postId() == null || comment.content() == null){
+        if (comment.userId() == null || comment.postId() == null || comment.content() == null) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Missing data!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
