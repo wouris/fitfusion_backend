@@ -5,60 +5,67 @@ CREATE DATABASE fitfusion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE fitfusion;
 
 -- Create the 'users' table
-CREATE TABLE users (
-    id UUID PRIMARY KEY,
-    username VARCHAR(255) UNIQUE,
-    email VARCHAR(255) UNIQUE,
-    password VARCHAR(255),
-    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE users
+(
+    id                UUID PRIMARY KEY,
+    username          VARCHAR(255) UNIQUE,
+    email             VARCHAR(255) UNIQUE,
+    password          VARCHAR(255),
+    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Create the 'account_info' table
-CREATE TABLE account_info (
-    userID UUID,
-    workouts INT,
+CREATE TABLE account_info
+(
+    user_id   UUID,
+    workouts  INT,
     followers INT,
     following INT,
-    FOREIGN KEY (userID) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 -- Create the 'workouts' table
-CREATE TABLE workouts (
-    userID UUID,
+CREATE TABLE workouts
+(
+    user_id   UUID,
     body_part VARCHAR(255),
-    duration INT,
-    FOREIGN KEY (userID) REFERENCES users(id)
+    duration  INT,
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 -- Create the 'followers' table
-CREATE TABLE followers (
-    fromUserID UUID,
-    toUserID UUID,
-    FOREIGN KEY (fromUserID) REFERENCES users(id),
-    FOREIGN KEY (toUserID) REFERENCES users(id)
+CREATE TABLE followers
+(
+    user_id     UUID,
+    follower_id UUID,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (follower_id) REFERENCES users (id)
 );
 
 -- Create the 'following' table
-CREATE TABLE following (
-    userID UUID,
-    whoUserID UUID,
-    FOREIGN KEY (userID) REFERENCES users(id),
-    FOREIGN KEY (whoUserID) REFERENCES users(id)
+CREATE TABLE following
+(
+    user_id      UUID,
+    following_id UUID,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (following_id) REFERENCES users (id)
 );
 
-CREATE TABLE posts (
-		id UUID PRIMARY KEY,
-  	userID UUID,
-  	image MEDIUMBLOB,
-  	description VARCHAR(255),
-  	FOREIGN KEY (userID) REFERENCES users(id)
+CREATE TABLE posts
+(
+    id          UUID PRIMARY KEY,
+    author_id   UUID,
+    image       LONGTEXT,
+    description VARCHAR(255),
+    FOREIGN KEY (author_id) REFERENCES users (id)
 );
 
-CREATE TABLE comments (
-        id UUID PRIMARY KEY,
-        user_id UUID,
-        post_id UUID,
-        comment VARCHAR(255),
-        FOREIGN KEY (userID) REFERENCES users(id),
-        FOREIGN KEY (postID) REFERENCES posts(id)
+CREATE TABLE comments
+(
+    id      UUID PRIMARY KEY,
+    user_id UUID,
+    post_id UUID,
+    comment VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (post_id) REFERENCES posts (id)
 );
