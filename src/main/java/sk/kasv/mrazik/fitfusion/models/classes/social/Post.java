@@ -1,4 +1,4 @@
-package sk.kasv.mrazik.fitfusion.models.social;
+package sk.kasv.mrazik.fitfusion.models.classes.social;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

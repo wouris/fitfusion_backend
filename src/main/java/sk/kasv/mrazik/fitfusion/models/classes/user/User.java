@@ -1,11 +1,11 @@
-package sk.kasv.mrazik.fitfusion.models.user;
+package sk.kasv.mrazik.fitfusion.models.classes.user;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import sk.kasv.mrazik.fitfusion.models.classes.social.Post;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
-import sk.kasv.mrazik.fitfusion.models.social.Post;
 
 import java.util.List;
 import java.util.Set;

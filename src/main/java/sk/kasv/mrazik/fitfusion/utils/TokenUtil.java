@@ -1,7 +1,7 @@
 package sk.kasv.mrazik.fitfusion.utils;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import sk.kasv.mrazik.fitfusion.models.user.auth.Token;
+import sk.kasv.mrazik.fitfusion.models.classes.user.auth.Token;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +36,7 @@ public class TokenUtil {
 
     public boolean isInvalidToken(UUID userId, String token) {
         Token userToken = this.tokens.get(userId);
-        return userToken != null && userToken.token().equals(token);
+        return userToken == null || !userToken.token().equals(token);
     }
 
     private static class TokenHolder {

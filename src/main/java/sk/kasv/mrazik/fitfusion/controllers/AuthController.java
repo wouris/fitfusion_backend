@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
+import sk.kasv.mrazik.fitfusion.models.classes.user.User;
+import sk.kasv.mrazik.fitfusion.models.classes.user.auth.UserAuth;
+import sk.kasv.mrazik.fitfusion.models.classes.user.responses.AuthResponse;
+import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
-import sk.kasv.mrazik.fitfusion.models.user.User;
-import sk.kasv.mrazik.fitfusion.models.user.auth.UserAuth;
-import sk.kasv.mrazik.fitfusion.models.user.responses.AuthResponse;
-import sk.kasv.mrazik.fitfusion.models.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 

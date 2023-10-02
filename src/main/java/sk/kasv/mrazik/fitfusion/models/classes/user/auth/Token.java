@@ -1,4 +1,4 @@
-package sk.kasv.mrazik.fitfusion.models.user.auth;
+package sk.kasv.mrazik.fitfusion.models.classes.user.auth;
 
 import java.time.LocalDateTime;
 

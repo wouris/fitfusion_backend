@@ -1,10 +1,10 @@
 package sk.kasv.mrazik.fitfusion.database;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import sk.kasv.mrazik.fitfusion.models.classes.social.Post;
+
 import java.util.UUID;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import sk.kasv.mrazik.fitfusion.models.social.Post;
+public interface PostRepository extends JpaRepository<Post, UUID> {
 
-public interface PostRepository extends JpaRepository<Post, UUID>{
-    
 }

@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.CommentRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
+import sk.kasv.mrazik.fitfusion.models.classes.social.Comment;
+import sk.kasv.mrazik.fitfusion.models.classes.social.Post;
+import sk.kasv.mrazik.fitfusion.models.classes.user.User;
+import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
-import sk.kasv.mrazik.fitfusion.models.social.Comment;
-import sk.kasv.mrazik.fitfusion.models.social.Post;
-import sk.kasv.mrazik.fitfusion.models.user.User;
-import sk.kasv.mrazik.fitfusion.models.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
@@ -146,6 +146,12 @@ public class SocialController {
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        // check if the post exists
+        if (!postRepo.existsById(comment.postId())) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Post not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
         }
 
         comment.id(UUID.randomUUID());

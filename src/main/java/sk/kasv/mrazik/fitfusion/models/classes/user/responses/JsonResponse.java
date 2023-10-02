@@ -1,4 +1,4 @@
-package sk.kasv.mrazik.fitfusion.models.user.responses;
+package sk.kasv.mrazik.fitfusion.models.classes.user.responses;
 
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 
