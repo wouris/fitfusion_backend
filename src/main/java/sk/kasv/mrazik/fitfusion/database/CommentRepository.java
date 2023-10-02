@@ -11,6 +11,6 @@ import java.util.UUID;
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
     // add a query to instead of user_id return username
-    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.CommentDTO(c.id, u.username, c.postId, c.content) FROM comments c JOIN users u ON c.userId = u.id WHERE c.postId = ?1")
+    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.CommentDTO(c.id, c.postId, u.username, c.content) FROM comments c JOIN users u ON c.userId = u.id WHERE c.postId = ?1")
     List<CommentDTO> findAllByPostId(UUID postId);
 }
