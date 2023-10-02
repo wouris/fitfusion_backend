@@ -13,12 +13,12 @@ import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.models.user.User;
+import sk.kasv.mrazik.fitfusion.models.user.auth.AuthResponse;
 import sk.kasv.mrazik.fitfusion.models.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -56,7 +56,7 @@ public class AuthController {
         } else {
             String token = TokenUtil.generateToken();
             TokenUtil.getInstance().addToken(user.id(), token);
-            Map<String, String> response = Map.of("Authorization", token, "USER_ID", user.id().toString(), "ROLE", user.role().toString());
+            AuthResponse response = new AuthResponse(token, user.id().toString(), user.role().toString());
             return ResponseEntity.status(HttpStatus.OK).body(GsonUtil.getInstance().toJson(response));
         }
     }
@@ -87,7 +87,7 @@ public class AuthController {
 
         String token = TokenUtil.generateToken();
         TokenUtil.getInstance().addToken(user.id(), token);
-        Map<String, String> response = Map.of("token", token);
+        AuthResponse response = new AuthResponse(token, user.id().toString(), user.role().toString());
         return ResponseEntity.status(HttpStatus.OK).body(GsonUtil.getInstance().toJson(response));
     }
 }
