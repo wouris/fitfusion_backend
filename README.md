@@ -14,7 +14,8 @@ Here are all the endpoints with descriptions and responses
 | `/auth/register` | `POST` | Registers the user | `{"username": "string", "password": "string"}` | `{"type": "string", "message": "string"}` |
 |  `/auth/login`   | `POST` | Signs in the user  | `{"username": "string", "password": "string"}` | `{"type": "string", "message": "string"}` |
 
-All the requests for the endpoints below must include `Authorization` (Token) and `USER_ID` (User UUID) headers
+> [!IMPORTANT]
+> All the requests for the endpoints below must include `Authorization` (Token) and `USER_ID` (User UUID) headers
 
 ### Social
 
