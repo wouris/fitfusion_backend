@@ -147,4 +147,36 @@ public class SocialController {
         JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Comment created!");
         return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(response));
     }
+
+    @DeleteMapping("/comment/remove")
+    public ResponseEntity<String> removeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
+
+        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        if (comment.id() == null) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Missing data!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        // check if the comment exists
+        if (!commentRepo.existsById(comment.id())) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Comment not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
+        }
+
+        // check if the comment belongs to the user
+        if (!commentRepo.findById(comment.id()).get().userId().equals(id)) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Comment does not belong to the user!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GsonUtil.getInstance().toJson(response));
+        }
+
+        commentRepo.deleteById(comment.id());
+
+        JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Comment deleted!");
+        return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(response));
+    }
 }
