@@ -128,7 +128,7 @@ public class SocialController {
 
         // check if the post belongs to the user
         if (user.role() != Role.ADMIN) {
-            if (!postRepo.findById(post.id()).get().authorId().equals(id)) {
+            if (!postRepo.findById(post.id()).get().userId().equals(id)) {
                 JsonResponse response = new JsonResponse(ResponseType.ERROR, "Post does not belong to the user!");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GsonUtil.getInstance().toJson(response));
             }

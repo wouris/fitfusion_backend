@@ -10,18 +10,18 @@ public class Post {
 
     @Id
     private UUID id;
+    private UUID userId; // author
     private String image; // base64
     private String description;
-    private UUID authorId;
 
     public Post() {
     }
 
-    public Post(String image, String description, UUID authorId) {
+    public Post(String image, String description, UUID userId) {
         this.id = UUID.randomUUID();
         this.image = image;
         this.description = description;
-        this.authorId = authorId;
+        this.userId = userId;
     }
 
     public UUID id() {
@@ -36,8 +36,8 @@ public class Post {
         return this.description;
     }
 
-    public UUID authorId() {
-        return this.authorId;
+    public UUID userId() {
+        return this.userId;
     }
 
     public void image(String image) {
@@ -48,7 +48,7 @@ public class Post {
         this.description = description;
     }
 
-    public void authorId(UUID author) {
-        this.authorId = author;
+    public void userId(UUID userId) {
+        this.userId = userId;
     }
 }
