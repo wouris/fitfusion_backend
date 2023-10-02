@@ -1,8 +1,6 @@
 package sk.kasv.mrazik.fitfusion.utils;
 
 import org.apache.commons.lang3.RandomStringUtils;
-
-import jakarta.persistence.Id;
 import sk.kasv.mrazik.fitfusion.models.user.auth.Token;
 
 import java.util.HashMap;
@@ -18,10 +16,6 @@ public class TokenUtil {
 
     public static String generateToken() {
         return RandomStringUtils.random(40, true, true);
-    }
-
-    private static class TokenHolder {
-        private static final TokenUtil INSTANCE = new TokenUtil();
     }
 
     public static TokenUtil getInstance() {
@@ -40,8 +34,12 @@ public class TokenUtil {
         this.tokens.remove(userId);
     }
 
-    public boolean isTokenValid(UUID userId, String token) {
+    public boolean isInvalidToken(UUID userId, String token) {
         Token userToken = this.tokens.get(userId);
         return userToken != null && userToken.token().equals(token);
+    }
+
+    private static class TokenHolder {
+        private static final TokenUtil INSTANCE = new TokenUtil();
     }
 }

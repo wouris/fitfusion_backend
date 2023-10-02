@@ -8,8 +8,9 @@ connect with people that have same goals, being fit! You can share your progress
 Here are all the endpoints with descriptions and responses
 
 > [!NOTE]
-> When the request is unsuccessful, the response body will always be `{"type": "ERROR", "message": "string"}`
-> Response Body examples are when the request is successful
+> In the event of an unsuccessful request, the response body will consistently
+> contain `{"type": "ERROR", "message": "string"}`.
+> Response body examples are provided for successful requests.
 
 ## Auth
 

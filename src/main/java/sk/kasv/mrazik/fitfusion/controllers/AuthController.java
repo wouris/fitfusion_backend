@@ -13,9 +13,9 @@ import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.models.user.User;
-import sk.kasv.mrazik.fitfusion.models.user.auth.AuthResponse;
 import sk.kasv.mrazik.fitfusion.models.user.auth.UserAuth;
-import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
+import sk.kasv.mrazik.fitfusion.models.user.responses.AuthResponse;
+import sk.kasv.mrazik.fitfusion.models.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 

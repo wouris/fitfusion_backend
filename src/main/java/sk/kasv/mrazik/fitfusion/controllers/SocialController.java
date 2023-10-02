@@ -5,10 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.CommentRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
+import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
+import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.models.social.Comment;
 import sk.kasv.mrazik.fitfusion.models.social.Post;
-import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
+import sk.kasv.mrazik.fitfusion.models.user.User;
+import sk.kasv.mrazik.fitfusion.models.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
@@ -32,10 +35,12 @@ public class SocialController {
 
     private final PostRepository postRepo;
     private final CommentRepository commentRepo;
+    private final UserRepository userRepo;
 
-    public SocialController(PostRepository postRepo, CommentRepository commentRepo) {
+    public SocialController(PostRepository postRepo, CommentRepository commentRepo, UserRepository userRepo) {
         this.postRepo = postRepo;
         this.commentRepo = commentRepo;
+        this.userRepo = userRepo;
     }
 
     @PostMapping("/post/upload")
@@ -43,7 +48,7 @@ public class SocialController {
 
         Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
-        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
@@ -97,7 +102,7 @@ public class SocialController {
     public ResponseEntity<String> removePost(@RequestBody String postId, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         Post post = GsonUtil.getInstance().fromJson(postId, Post.class);
 
-        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
@@ -113,10 +118,19 @@ public class SocialController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
         }
 
+        // check requester's role
+        User user = userRepo.findById(id).orElse(null);
+        if (user == null) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "User not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
+        }
+
         // check if the post belongs to the user
-        if (!postRepo.findById(post.id()).get().authorId().equals(id)) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Post does not belong to the user!");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GsonUtil.getInstance().toJson(response));
+        if (user.role() != Role.ADMIN) {
+            if (!postRepo.findById(post.id()).get().authorId().equals(id)) {
+                JsonResponse response = new JsonResponse(ResponseType.ERROR, "Post does not belong to the user!");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GsonUtil.getInstance().toJson(response));
+            }
         }
 
         postRepo.deleteById(post.id());
@@ -129,7 +143,7 @@ public class SocialController {
     public ResponseEntity<String> commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
 
-        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
@@ -152,7 +166,7 @@ public class SocialController {
     public ResponseEntity<String> removeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
 
-        if (!TokenUtil.getInstance().isTokenValid(id, token)) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
             return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
         }
@@ -168,10 +182,19 @@ public class SocialController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
         }
 
+        // check requester's role
+        User user = userRepo.findById(id).orElse(null);
+        if (user == null) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "User not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
+        }
+
         // check if the comment belongs to the user
-        if (!commentRepo.findById(comment.id()).get().userId().equals(id)) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Comment does not belong to the user!");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GsonUtil.getInstance().toJson(response));
+        if (user.role() != Role.ADMIN) {
+            if (!commentRepo.findById(comment.id()).get().userId().equals(id)) {
+                JsonResponse response = new JsonResponse(ResponseType.ERROR, "Comment does not belong to the user!");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GsonUtil.getInstance().toJson(response));
+            }
         }
 
         commentRepo.deleteById(comment.id());
