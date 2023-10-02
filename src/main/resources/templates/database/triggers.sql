@@ -19,7 +19,7 @@ BEGIN
     DELETE FROM following WHERE following.user_id = OLD.id OR following.following_id = OLD.id;
 
     -- Delete related records from 'posts'
-    DELETE FROM posts WHERE posts.author_id = OLD.id;
+    DELETE FROM posts WHERE posts.user_id = OLD.id;
 END;
 //
 DELIMITER ;

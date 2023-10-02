@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS fitfusion;
+
 -- Create the 'fitfusion' database
 CREATE DATABASE fitfusion CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -11,7 +13,8 @@ CREATE TABLE users
     username          VARCHAR(255) UNIQUE,
     email             VARCHAR(255) UNIQUE,
     password          VARCHAR(255),
-    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP
+    registration_date DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    role              VARCHAR(255) DEFAULT 'USER'
 );
 
 -- Create the 'account_info' table
@@ -54,10 +57,10 @@ CREATE TABLE following
 CREATE TABLE posts
 (
     id          UUID PRIMARY KEY,
-    author_id   UUID,
+    user_id     UUID,
     image       LONGTEXT,
     description VARCHAR(255),
-    FOREIGN KEY (author_id) REFERENCES users (id)
+    FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE comments
