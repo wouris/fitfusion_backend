@@ -1,5 +1,6 @@
 package sk.kasv.mrazik.fitfusion.controllers;
 
+import com.google.gson.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -137,6 +138,31 @@ public class SocialController {
 
         JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Post deleted!");
         return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(response));
+    }
+
+    @GetMapping("/comment/get")
+    public ResponseEntity<String> getComments(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        String postId = JsonParser.parseString(data).getAsJsonObject().get("postId").getAsString();
+
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token or user UUID, please re-login!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        if (postId == null) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Missing data!");
+            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+        }
+
+        UUID postUUID = UUID.fromString(postId);
+
+        // check if the post exists
+        if (!postRepo.existsById(postUUID)) {
+            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Post not found!");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
+        }
+
+        return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(commentRepo.findAllByPostId(postUUID)));
     }
 
     @PostMapping("/comment/upload")
