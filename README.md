@@ -7,12 +7,16 @@ connect with people that have same goals, being fit! You can share your progress
 
 Here are all the endpoints with descriptions and responses
 
+> [!NOTE]
+> When the request is unsuccessful, the response body will always be `{"type": "ERROR", "message": "string"}`
+> Response Body examples are when the request is successful
+
 ## Auth
 
-|     Endpoint     | Method |    Description     |              Request Body Example              |           Response Body Example           |
-|:----------------:|:------:|:------------------:|:----------------------------------------------:|:-----------------------------------------:|
-| `/auth/register` | `POST` | Registers the user | `{"username": "string", "password": "string"}` | `{"type": "string", "message": "string"}` |
-|  `/auth/login`   | `POST` | Signs in the user  | `{"username": "string", "password": "string"}` | `{"type": "string", "message": "string"}` |
+|     Endpoint     | Method |    Description     |                       Request Body Example                       |                        Response Body Example                         |
+|:----------------:|:------:|:------------------:|:----------------------------------------------------------------:|:--------------------------------------------------------------------:|
+| `/auth/register` | `POST` | Registers the user | `{"email": "string","username": "string", "password": "string"}` | `{"Authorization": "string", "USER_ID": "string", "ROLE": "string"}` |
+|  `/auth/login`   | `POST` | Signs in the user  |          `{"username": "string", "password": "string"}`          | `{"Authorization": "string", "USER_ID": "string", "ROLE": "string"}` |
 
 > [!IMPORTANT]
 > All the requests for the endpoints below must include `Authorization` (Token) and `USER_ID` (User UUID) headers
