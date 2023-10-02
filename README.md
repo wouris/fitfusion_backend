@@ -17,16 +17,16 @@ Here are all the endpoints with descriptions and responses
 > [!IMPORTANT]
 > All the requests for the endpoints below must include `Authorization` (Token) and `USER_ID` (User UUID) headers
 
-### Social
+## Social
 
-## Post
+### Post
 
 |         Endpoint          |  Method  |            Description            |                             Request Body Example                              |           Response Body Example           |
 |:-------------------------:|:--------:|:---------------------------------:|:-----------------------------------------------------------------------------:|:-----------------------------------------:|
 | `/api/social/post/upload` |  `POST`  | Uploads the image and description | `{"image": "string (base64)", "description": "string", "author": "ObjectId"}` | `{"type": "string", "message": "string"}` |
 | `/api/social/post/remove` | `DELETE` |         Removes the post          |                             `{"postId": "UUID"}`                              | `{"type": "string", "message": "string"}` |
 
-## Comment
+### Comment
 
 |           Endpoint           |  Method  |         Description         |           Request Body Example            |           Response Body Example           |
 |:----------------------------:|:--------:|:---------------------------:|:-----------------------------------------:|:-----------------------------------------:|
