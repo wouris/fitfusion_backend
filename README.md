@@ -7,7 +7,7 @@ connect with people that have same goals, being fit! You can share your progress
 
 Here are all the endpoints with descriptions and responses
 
-### Auth
+## Auth
 
 |     Endpoint     | Method |    Description     |              Request Body Example              |           Response Body Example           |
 |:----------------:|:------:|:------------------:|:----------------------------------------------:|:-----------------------------------------:|

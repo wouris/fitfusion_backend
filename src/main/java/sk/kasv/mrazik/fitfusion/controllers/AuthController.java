@@ -17,6 +17,7 @@ import sk.kasv.mrazik.fitfusion.models.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.util.JsonResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
+
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,47 +34,47 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserAuth data){
+    public ResponseEntity<?> login(@RequestBody UserAuth data) {
         String username = data.username();
         String password = data.password();
 
-        if(StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Username or Password is blank!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         }
 
         User user = userRepo.findByUsername(username);
 
-        if(user == null){
+        if (user == null) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "User not found!");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
         }
 
-        if(!this.encoder.matches(password, user.password())){
+        if (!this.encoder.matches(password, user.password())) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong password!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         } else {
             String token = TokenUtil.generateToken();
             TokenUtil.getInstance().addToken(user.id(), token);
-            Map<String, String> response = Map.of("token", token);
+            Map<String, String> response = Map.of("Authorization", token, "USER_ID", user.id().toString(), "ROLE", user.role().toString());
             return ResponseEntity.status(HttpStatus.OK).body(GsonUtil.getInstance().toJson(response));
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserAuth data){
+    public ResponseEntity<?> register(@RequestBody UserAuth data) {
         String email = data.email();
         String username = data.username();
         String password = data.password();
 
-        if(StringUtils.isBlank(email) || StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+        if (StringUtils.isBlank(email) || StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "Some of the data provided is blank!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         }
 
         User user = userRepo.findByUsername(username);
 
-        if(user != null){
+        if (user != null) {
             JsonResponse response = new JsonResponse(ResponseType.ERROR, "User already exists!");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
         }
