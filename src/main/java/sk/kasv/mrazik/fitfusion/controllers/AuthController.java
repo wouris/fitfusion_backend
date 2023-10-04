@@ -80,7 +80,7 @@ public class AuthController {
         // hash password sent in request
         password = this.encoder.encode(password);
 
-        user = new User(UUID.randomUUID(), username, password, Role.USER);
+        user = new User(UUID.randomUUID(), email, username, password, Role.USER);
         userRepo.save(user);
 
         String token = TokenUtil.generateToken();

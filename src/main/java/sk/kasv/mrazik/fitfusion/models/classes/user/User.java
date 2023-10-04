@@ -31,15 +31,9 @@ public class User {
         this.role = role;
     }
 
-    public User(UUID id, String username, String password, Role role) {
+    public User(UUID id, String email, String username, String password, Role role) {
         this.id = id;
-        this.username = username;
-        this.password = password;
-        this.role = role;
-    }
-
-    public User(UUID id, String username, String password, Role role, Set<Workout> workouts, Set<User> followers, Set<User> following, List<Post> posts) {
-        this.id = id;
+        this.email = email;
         this.username = username;
         this.password = password;
         this.role = role;
