@@ -10,13 +10,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.BadCredentialsException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.RecordExistsException;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
 import sk.kasv.mrazik.fitfusion.models.classes.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.classes.user.responses.AuthResponse;
-import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
-import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
-import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.util.UUID;
@@ -39,25 +40,22 @@ public class AuthController {
         String password = data.password();
 
         if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Username or Password is blank!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
+            throw new BlankDataException("Username or Password is blank!");
         }
 
         User user = userRepo.findByUsername(username);
 
         if (user == null) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "User not found!");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(GsonUtil.getInstance().toJson(response));
+            throw new NoRecordException("User not found!");
         }
 
         if (!this.encoder.matches(password, user.password())) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong password!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
+            throw new BadCredentialsException("Username or Password is incorrect!");
         } else {
             String token = TokenUtil.generateToken();
             TokenUtil.getInstance().addToken(user.id(), token);
             AuthResponse response = new AuthResponse(token, user.id().toString(), user.role().toString());
-            return ResponseEntity.status(HttpStatus.OK).body(GsonUtil.getInstance().toJson(response));
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         }
     }
 
@@ -68,15 +66,15 @@ public class AuthController {
         String password = data.password();
 
         if (StringUtils.isBlank(email) || StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Some of the data provided is blank!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
+            throw new BlankDataException("Missing Data!");
         }
 
-        User user = userRepo.findByUsername(username);
+        User user = userRepo.findByUsernameOrEmail(username, email);
 
         if (user != null) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "User already exists!");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GsonUtil.getInstance().toJson(response));
+            String emailResponse = "Email already exists!";
+            String usernameResponse = "Username already exists!";
+            throw new RecordExistsException(user.username().equals(username) ? usernameResponse : emailResponse);
         }
 
         // hash password sent in request
@@ -88,6 +86,6 @@ public class AuthController {
         String token = TokenUtil.generateToken();
         TokenUtil.getInstance().addToken(user.id(), token);
         AuthResponse response = new AuthResponse(token, user.id().toString(), user.role().toString());
-        return ResponseEntity.status(HttpStatus.OK).body(GsonUtil.getInstance().toJson(response));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

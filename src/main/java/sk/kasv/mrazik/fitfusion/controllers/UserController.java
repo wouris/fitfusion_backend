@@ -3,10 +3,9 @@ package sk.kasv.mrazik.fitfusion.controllers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
-import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
-import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
-import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.util.UUID;
@@ -25,19 +24,17 @@ public class UserController {
     public ResponseEntity<?> getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId, @RequestBody String data) {
 
         if (TokenUtil.getInstance().isInvalidToken(userId, token)) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "Wrong Token, please re-login!");
-            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
 
         // search for user and get his info
         User user = userRepo.findById(id).orElse(null);
 
         if (user == null) {
-            JsonResponse response = new JsonResponse(ResponseType.ERROR, "User not found!");
-            return ResponseEntity.badRequest().body(GsonUtil.getInstance().toJson(response));
+            throw new NoRecordException("User not found!");
         }
 
-        return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(user));
+        return ResponseEntity.ok().body(user);
 
 
     }
