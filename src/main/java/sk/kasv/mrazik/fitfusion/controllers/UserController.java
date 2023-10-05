@@ -2,7 +2,6 @@ package sk.kasv.mrazik.fitfusion.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import sk.kasv.mrazik.fitfusion.database.SocialInfoRepository;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
@@ -16,7 +15,7 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*") // this is for development only
-@RequestMapping("/api/user")
+@RequestMapping("/api/social/user")
 public class UserController {
 
     private final UserRepository userRepo;
@@ -28,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/info")
-    public ResponseEntity<?> getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId, @RequestBody String data) {
+    public ResponseEntity<?> getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId) {
 
         if (TokenUtil.getInstance().isInvalidToken(userId, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");

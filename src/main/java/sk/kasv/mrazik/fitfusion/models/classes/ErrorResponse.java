@@ -1,32 +1,17 @@
 package sk.kasv.mrazik.fitfusion.models.classes;
 
+import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 
 /*
  * This class is used to send error response to the client when an exception occurs.
  */
 public class ErrorResponse {
-    private int status;
-    private String message;
+    private final ResponseType type;
+    private final String message;
 
-    public ErrorResponse(int status, String message) {
-        this.status = status;
-        this.message = message;
-    }
-
-    public int status() {
-        return status;
-    }
-
-    public void status(int status) {
-        this.status = status;
-    }
-
-    public String message() {
-        return message;
-    }
-
-    public void message(String message) {
+    public ErrorResponse(String message) {
+        this.type = ResponseType.ERROR;
         this.message = message;
     }
 
