@@ -1,6 +1,5 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.SocialInfoRepository;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
@@ -8,7 +7,6 @@ import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.models.classes.user.SocialInfo;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
-import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.util.UUID;
@@ -27,7 +25,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/info")
-    public ResponseEntity<?> getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId) {
+    public SocialInfo getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId) {
 
         if (TokenUtil.getInstance().isInvalidToken(userId, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
@@ -44,6 +42,6 @@ public class UserController {
 
         socialInfo.username(user.username()); // this needs to be here as for some reason database returns username as null
 
-        return ResponseEntity.ok().body(GsonUtil.getInstance().toJson(socialInfo));
+        return socialInfo;
     }
 }

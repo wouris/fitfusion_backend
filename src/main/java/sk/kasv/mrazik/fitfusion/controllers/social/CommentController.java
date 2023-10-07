@@ -1,7 +1,6 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
 import com.google.gson.JsonParser;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.CommentRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
@@ -11,6 +10,7 @@ import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.UnauthorizedActionException;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.Comment;
+import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
 import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
@@ -18,6 +18,7 @@ import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,7 +37,7 @@ public class CommentController {
     }
 
     @PostMapping("/get")
-    public ResponseEntity<?> getComments(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public List<CommentDTO> getComments(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         String postId = JsonParser.parseString(data).getAsJsonObject().get("postId").getAsString();
 
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
@@ -54,11 +55,11 @@ public class CommentController {
             throw new NoRecordException("Post not found!");
         }
 
-        return ResponseEntity.ok().body(commentRepo.findAllByPostId(postUUID));
+        return commentRepo.findAllByPostId(postUUID);
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<?> commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
 
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
@@ -79,12 +80,11 @@ public class CommentController {
 
         commentRepo.save(comment);
 
-        JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Comment created!");
-        return ResponseEntity.ok().body(response);
+        return new JsonResponse(ResponseType.SUCCESS, "Comment created!");
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<?> removeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse removeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
 
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
@@ -115,7 +115,6 @@ public class CommentController {
 
         commentRepo.deleteById(comment.id());
 
-        JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Comment deleted!");
-        return ResponseEntity.ok().body(response);
+        return new JsonResponse(ResponseType.SUCCESS, "Comment deleted!");
     }
 }

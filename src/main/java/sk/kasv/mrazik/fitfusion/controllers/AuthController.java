@@ -2,14 +2,8 @@ package sk.kasv.mrazik.fitfusion.controllers;
 
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.BadCredentialsException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
@@ -18,6 +12,8 @@ import sk.kasv.mrazik.fitfusion.exceptions.classes.RecordExistsException;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
 import sk.kasv.mrazik.fitfusion.models.classes.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.classes.user.responses.AuthResponse;
+import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
+import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
@@ -37,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserAuth data) {
+    public AuthResponse login(@RequestBody UserAuth data) {
         String username = data.username();
         String password = data.password();
 
@@ -56,13 +52,12 @@ public class AuthController {
         } else {
             String token = TokenUtil.generateToken();
             TokenUtil.getInstance().addToken(user.id(), token);
-            AuthResponse response = new AuthResponse(token, user.id().toString(), user.role().toString());
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return new AuthResponse(token, user.id().toString(), user.role().toString());
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserAuth data) {
+    public AuthResponse register(@RequestBody UserAuth data) {
         String email = data.email();
         String username = data.username();
         String password = data.password();
@@ -87,7 +82,17 @@ public class AuthController {
 
         String token = TokenUtil.generateToken();
         TokenUtil.getInstance().addToken(user.id(), token);
-        AuthResponse response = new AuthResponse(token, user.id().toString(), user.role().toString());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return new AuthResponse(token, user.id().toString(), user.role().toString());
+    }
+
+    @PostMapping("/logout")
+    public JsonResponse logout(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
+            throw new BadCredentialsException("Wrong Token or user UUID, please re-login!");
+        }
+
+        TokenUtil.getInstance().removeToken(id);
+
+        return new JsonResponse(ResponseType.SUCCESS, "User logged out!");
     }
 }

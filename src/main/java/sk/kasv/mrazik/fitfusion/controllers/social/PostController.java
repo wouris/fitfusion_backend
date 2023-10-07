@@ -1,9 +1,7 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sk.kasv.mrazik.fitfusion.database.CommentRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.*;
@@ -30,7 +28,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -50,7 +47,7 @@ public class PostController {
 
     // TODO: Test this method properly after filling the database with posts and followings
     @PostMapping("/get")
-    public ResponseEntity<?> getPosts(@RequestBody PostRequest postRequest, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public Set<PostDTO> getPosts(@RequestBody PostRequest postRequest, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
 
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
@@ -58,17 +55,17 @@ public class PostController {
 
         Set<PostDTO> posts = postRepo.findPostsByFollowing(id, postRequest.pageSize(), postRequest.pageOffset());
 
-       if (posts.isEmpty()) {
-           posts.addAll(postRepo.findRandomPosts(id, postRequest.pageSize()));
-       } else if (posts.size() < 5) {
-           posts.addAll(postRepo.findRandomPosts(id, postRequest.pageSize() - posts.size()));
-       }
+        if (posts.isEmpty()) {
+            posts.addAll(postRepo.findRandomPosts(id, postRequest.pageSize()));
+        } else if (posts.size() < 5) {
+            posts.addAll(postRepo.findRandomPosts(id, postRequest.pageSize() - posts.size()));
+        }
 
-        return ResponseEntity.ok().body(posts);
+        return posts;
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
 
         Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
@@ -111,8 +108,7 @@ public class PostController {
 
             postRepo.save(post);
 
-            JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Post created!");
-            return ResponseEntity.ok().body(response);
+            return new JsonResponse(ResponseType.SUCCESS, "Post created!");
         } catch (IOException e) {
             e.printStackTrace();
             throw new InternalServerErrorException("Error while compressing image!");
@@ -120,7 +116,7 @@ public class PostController {
     }
 
     @DeleteMapping("/remove")
-    public ResponseEntity<?> removePost(@RequestBody String postId, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse removePost(@RequestBody String postId, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         Post post = GsonUtil.getInstance().fromJson(postId, Post.class);
 
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
@@ -151,7 +147,6 @@ public class PostController {
 
         postRepo.deleteById(post.id());
 
-        JsonResponse response = new JsonResponse(ResponseType.SUCCESS, "Post deleted!");
-        return ResponseEntity.ok().body(response);
+        return new JsonResponse(ResponseType.SUCCESS, "Post deleted!");
     }
 }
