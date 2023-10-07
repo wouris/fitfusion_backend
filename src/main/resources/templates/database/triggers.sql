@@ -1,6 +1,7 @@
 -- Create the trigger to delete related records
 DROP TRIGGER IF EXISTS UserDelete;
 DROP TRIGGER IF EXISTS PostDelete;
+DROP TRIGGER IF EXISTS CommentDelete;
 DELIMITER //
 CREATE TRIGGER UserDelete
     BEFORE DELETE
@@ -33,6 +34,15 @@ BEGIN
 
     -- Delete related records from 'likes'
     DELETE FROM likes WHERE likes.post_id = OLD.id;
+END;
+
+CREATE TRIGGER CommentDelete
+    BEFORE DELETE
+    ON comments
+    FOR EACH ROW
+BEGIN
+    -- Delete related records from 'likes'
+    DELETE FROM comment_likes WHERE comment_likes.comment_id = OLD.id;
 END;
 //
 DELIMITER ;

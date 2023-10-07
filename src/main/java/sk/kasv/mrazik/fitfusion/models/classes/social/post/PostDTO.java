@@ -107,6 +107,7 @@ public class PostDTO {
                 ", description='" + description + '\'' +
                 ", username='" + username + '\'' +
                 ", createdAgo='" + createdAgo + '\'' +
+                ", likes=" + likes +
                 ", topComments=" + topComments +
                 '}';
     }

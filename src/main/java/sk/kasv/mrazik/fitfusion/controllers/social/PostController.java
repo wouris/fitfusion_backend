@@ -4,11 +4,9 @@ package sk.kasv.mrazik.fitfusion.controllers.social;
 import com.google.gson.JsonParser;
 import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.*;
-import sk.kasv.mrazik.fitfusion.database.CommentRepository;
-import sk.kasv.mrazik.fitfusion.database.LikeRepository;
-import sk.kasv.mrazik.fitfusion.database.PostRepository;
-import sk.kasv.mrazik.fitfusion.database.UserRepository;
+import sk.kasv.mrazik.fitfusion.database.*;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.*;
+import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO;
 import sk.kasv.mrazik.fitfusion.models.classes.social.likes.Like;
 import sk.kasv.mrazik.fitfusion.models.classes.social.post.Post;
 import sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO;
@@ -44,15 +42,17 @@ public class PostController {
 
     private final PostRepository postRepo;
     private final CommentRepository commentRepo;
+    private final CommentLikesRepository commentLikesRepo;
     private final UserRepository userRepo;
 
     private final LikeRepository likeRepo;
 
-    public PostController(PostRepository postRepo, UserRepository userRepo, CommentRepository commentRepo, LikeRepository likeRepo) {
+    public PostController(PostRepository postRepo, UserRepository userRepo, CommentRepository commentRepo, LikeRepository likeRepo, CommentLikesRepository commentLikesRepo) {
         this.postRepo = postRepo;
         this.userRepo = userRepo;
         this.commentRepo = commentRepo;
         this.likeRepo = likeRepo;
+        this.commentLikesRepo = commentLikesRepo;
     }
 
     // TODO: Test this method properly after filling the database with posts and followings
@@ -71,8 +71,15 @@ public class PostController {
         }
 
         posts.forEach(post -> {
-            post.likes(likeRepo.findAllByPostId(post.id()).size());
-            post.topComments(commentRepo.findTopByPostId(post.id()));
+            post.likes(likeRepo.countByPostId(post.id()));
+
+            Set<CommentDTO> comments = commentRepo.findTopByPostId(post.id());
+
+            comments.forEach(comment -> {
+                comment.likes(commentLikesRepo.countByCommentId(comment.id()));
+            });
+            
+            post.topComments(comments);
         });
 
         return posts;
@@ -195,16 +202,11 @@ public class PostController {
     private UUID verifyPostId(String data) {
         String postIdString = JsonParser.parseString(data).getAsJsonObject().get("postId").getAsString();
 
-        UUID postId;
-        try {
-            if (postIdString == null) {
-                throw new BlankDataException("PostID is blank!");
-            }
-
-            postId = UUID.fromString(postIdString);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidTokenException("Wrong PostID format!");
+        if (postIdString == null) {
+            throw new BlankDataException("PostID is blank!");
         }
+
+        UUID postId = UUID.fromString(postIdString);
 
         // check if the post exists
         if (!postRepo.existsById(postId)) {

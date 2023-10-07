@@ -2,6 +2,7 @@ package sk.kasv.mrazik.fitfusion.controllers.social;
 
 import com.google.gson.JsonParser;
 import org.springframework.web.bind.annotation.*;
+import sk.kasv.mrazik.fitfusion.database.CommentLikesRepository;
 import sk.kasv.mrazik.fitfusion.database.CommentRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
@@ -11,6 +12,7 @@ import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.UnauthorizedActionException;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.Comment;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO;
+import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentLike;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
 import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
@@ -27,13 +29,19 @@ import java.util.UUID;
 public class CommentController {
 
     private final CommentRepository commentRepo;
+    private final CommentLikesRepository commentLikesRepo;
     private final PostRepository postRepo;
     private final UserRepository userRepo;
 
-    public CommentController(CommentRepository commentRepo, PostRepository postRepo, UserRepository userRepo) {
+    public CommentController(
+            CommentRepository commentRepo,
+            PostRepository postRepo,
+            UserRepository userRepo,
+            CommentLikesRepository commentLikesRepo) {
         this.commentRepo = commentRepo;
         this.postRepo = postRepo;
         this.userRepo = userRepo;
+        this.commentLikesRepo = commentLikesRepo;
     }
 
     @PostMapping("/get")
@@ -85,20 +93,11 @@ public class CommentController {
 
     @DeleteMapping("/remove")
     public JsonResponse removeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
-
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
 
-        if (comment.id() == null) {
-            throw new BlankDataException("CommentID is blank!");
-        }
-
-        // check if the comment exists
-        if (!commentRepo.existsById(comment.id())) {
-            throw new NoRecordException("Comment you're trying to remove does not exist!");
-        }
+        UUID commentId = verifyCommentId(data);
 
         // check requester's role
         User user = userRepo.findById(id).orElse(null);
@@ -108,13 +107,64 @@ public class CommentController {
 
         // check if the comment belongs to the user
         if (user.role() != Role.ADMIN) {
-            if (!commentRepo.findById(comment.id()).get().userId().equals(id)) {
+            if (!commentRepo.findById(commentId).get().userId().equals(id)) {
                 throw new UnauthorizedActionException("Comment does not belong to the user!");
             }
         }
 
-        commentRepo.deleteById(comment.id());
+        commentRepo.deleteById(commentId);
 
         return new JsonResponse(ResponseType.SUCCESS, "Comment deleted!");
+    }
+
+    @PostMapping("/like")
+    public JsonResponse likeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
+        }
+
+        UUID commentId = verifyCommentId(data);
+
+        if (commentLikesRepo.existsByUserIdAndCommentId(id, commentId)) {
+            throw new UnauthorizedActionException("User already liked this comment!");
+        }
+
+        commentLikesRepo.save(new CommentLike(id, commentId));
+
+        return new JsonResponse(ResponseType.SUCCESS, "Comment liked!");
+    }
+
+    @DeleteMapping("/dislike")
+    public JsonResponse dislikeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
+        }
+
+        UUID commentId = verifyCommentId(data);
+
+        if (!commentLikesRepo.existsByUserIdAndCommentId(id, commentId)) {
+            throw new UnauthorizedActionException("User has not liked this comment!");
+        }
+
+        commentLikesRepo.deleteById(id);
+
+        return new JsonResponse(ResponseType.SUCCESS, "Comment disliked!");
+    }
+
+    private UUID verifyCommentId(String data) {
+        String commentIdString = JsonParser.parseString(data).getAsJsonObject().get("commentId").getAsString();
+
+        if (commentIdString == null) {
+            throw new BlankDataException("CommentID is blank!");
+        }
+
+        UUID commentId = UUID.fromString(commentIdString);
+
+        // check if the comment exists
+        if (!commentRepo.existsById(commentId)) {
+            throw new NoRecordException("Comment not found!");
+        }
+
+        return commentId;
     }
 }

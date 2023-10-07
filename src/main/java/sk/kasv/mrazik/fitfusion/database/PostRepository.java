@@ -25,7 +25,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "LEFT JOIN users u ON p.userId = u.id " +
             "WHERE p.userId != ?1 " +
             "AND p.userId NOT IN (SELECT f.followingId FROM following f WHERE f.userId = ?1) " +
-            "AND p.id NOT IN (SELECT l.postId FROM likes l WHERE l.userId = ?1) " +
+//            "AND p.id NOT IN (SELECT l.postId FROM likes l WHERE l.userId = ?1) " +
             "AND p.id NOT IN (SELECT p2.id FROM posts p2 " +
             "INNER JOIN following f ON p2.userId = f.followingId " +
             "WHERE f.userId = ?1) " +
