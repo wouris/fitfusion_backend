@@ -134,7 +134,7 @@ public class CommentController {
         return new JsonResponse(ResponseType.SUCCESS, "Comment liked!");
     }
 
-    @DeleteMapping("/dislike")
+    @DeleteMapping("/unlike")
     public JsonResponse dislikeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
@@ -148,7 +148,7 @@ public class CommentController {
 
         commentLikesRepo.deleteById(id);
 
-        return new JsonResponse(ResponseType.SUCCESS, "Comment disliked!");
+        return new JsonResponse(ResponseType.SUCCESS, "Comment unliked!");
     }
 
     private UUID verifyCommentId(String data) {
