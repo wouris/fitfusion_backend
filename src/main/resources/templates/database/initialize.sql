@@ -60,6 +60,7 @@ CREATE TABLE posts
     user_id     UUID,
     image       LONGTEXT,
     description VARCHAR(255),
+    created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
@@ -69,6 +70,14 @@ CREATE TABLE comments
     user_id UUID,
     post_id UUID,
     comment VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (post_id) REFERENCES posts (id)
+);
+
+CREATE TABLE likes
+(
+    user_id UUID,
+    post_id UUID,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (post_id) REFERENCES posts (id)
 );

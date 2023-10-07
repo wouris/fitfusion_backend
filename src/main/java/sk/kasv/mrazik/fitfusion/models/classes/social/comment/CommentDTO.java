@@ -1,4 +1,4 @@
-package sk.kasv.mrazik.fitfusion.models.classes.social;
+package sk.kasv.mrazik.fitfusion.models.classes.social.comment;
 
 import java.util.UUID;
 

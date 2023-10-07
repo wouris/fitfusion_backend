@@ -28,6 +28,7 @@ Here are all the endpoints with descriptions and responses
 
 |         Endpoint          |  Method  |            Description            |                           Request Body Example                            |           Response Body Example           |
 |:-------------------------:|:--------:|:---------------------------------:|:-------------------------------------------------------------------------:|:-----------------------------------------:|
+|  `/api/social/post/get`   |  `POST`  | Returns posts based on parameters |            `{"pageSize": "integer", "pageOffset": "integer"}`             | `{"type": "string", "message": "string"}` |
 | `/api/social/post/upload` |  `POST`  | Uploads the image and description | `{"image": "string (base64)", "description": "string", "author": "UUID"}` | `{"type": "string", "message": "string"}` |
 | `/api/social/post/remove` | `DELETE` |         Removes the post          |                           `{"postId": "UUID"}`                            | `{"type": "string", "message": "string"}` |
 
@@ -35,7 +36,7 @@ Here are all the endpoints with descriptions and responses
 
 |           Endpoint           |  Method  |          Description           |           Request Body Example            |                             Response Body Example                              |
 |:----------------------------:|:--------:|:------------------------------:|:-----------------------------------------:|:------------------------------------------------------------------------------:|
-|  `/api/social/comment/get`   |  `GET`   | Returns all comments on a post |           `{"postId": "UUID"}`            | `[{"id": "UUID", "postId":"UUID", "username": "string", "content": "string"}]` |
+|  `/api/social/comment/get`   |  `POST`  | Returns all comments on a post |           `{"postId": "UUID"}`            | `[{"id": "UUID", "postId":"UUID", "username": "string", "content": "string"}]` |
 | `/api/social/comment/upload` |  `POST`  |   Sends a comment on a post    | `{"postId": "UUID", "content": "string"}` |                   `{"type": "string", "message": "string"}`                    |
 | `/api/social/comment/remove` | `DELETE` |  Removes a comment on a post   |           `{"postId": "UUID"}`            |                   `{"type": "string", "message": "string"}`                    |
 

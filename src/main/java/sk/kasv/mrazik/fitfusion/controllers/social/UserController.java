@@ -1,4 +1,4 @@
-package sk.kasv.mrazik.fitfusion.controllers;
+package sk.kasv.mrazik.fitfusion.controllers.social;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

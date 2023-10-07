@@ -1,8 +1,9 @@
-package sk.kasv.mrazik.fitfusion.models.classes.social;
+package sk.kasv.mrazik.fitfusion.models.classes.social.post;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity(name = "posts")
@@ -13,15 +14,17 @@ public class Post {
     private UUID userId; // author
     private String image; // base64
     private String description;
+    private Timestamp createdAt;
 
     public Post() {
     }
 
-    public Post(String image, String description, UUID userId) {
+    public Post(String image, String description, UUID userId, Timestamp createdAt) {
         this.id = UUID.randomUUID();
         this.image = image;
         this.description = description;
         this.userId = userId;
+        this.createdAt = createdAt;
     }
 
     public UUID id() {
@@ -40,15 +43,7 @@ public class Post {
         return this.userId;
     }
 
-    public void image(String image) {
-        this.image = image;
-    }
-
-    public void description(String description) {
-        this.description = description;
-    }
-
-    public void userId(UUID userId) {
-        this.userId = userId;
+    public Timestamp createdAt() {
+        return this.createdAt;
     }
 }
