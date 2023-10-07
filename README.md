@@ -22,6 +22,12 @@ Here are all the endpoints with descriptions and responses
 > [!IMPORTANT]
 > All the requests for the endpoints below must include `Authorization` (Token) and `USER_ID` (User UUID) headers
 
+## Auth
+
+|    Endpoint    | Method |    Description     | Request Body Example |                        Response Body Example                         |
+|:--------------:|:------:|:------------------:|:--------------------:|:--------------------------------------------------------------------:|
+| `/auth/logout` | `POST` | Signs out the user |         `{}`         | `{"Authorization": "string", "USER_ID": "string", "ROLE": "string"}` |
+
 ## Social
 
 ### Post
@@ -31,6 +37,8 @@ Here are all the endpoints with descriptions and responses
 |  `/api/social/post/get`   |  `POST`  | Returns posts based on parameters |            `{"pageSize": "integer", "pageOffset": "integer"}`             | `{"type": "string", "message": "string"}` |
 | `/api/social/post/upload` |  `POST`  | Uploads the image and description | `{"image": "string (base64)", "description": "string", "author": "UUID"}` | `{"type": "string", "message": "string"}` |
 | `/api/social/post/remove` | `DELETE` |         Removes the post          |                           `{"postId": "UUID"}`                            | `{"type": "string", "message": "string"}` |
+|  `/api/social/post/like`  |  `POST`  |          Likes the post           |                           `{"postId": "UUID"}`                            | `{"type": "string", "message": "string"}` |
+| `/api/social/post/unlike` | `DELETE` |         Unlikes the post          |                           `{"postId": "UUID"}`                            | `{"type": "string", "message": "string"}` |
 
 ### Comment
 
@@ -38,7 +46,7 @@ Here are all the endpoints with descriptions and responses
 |:----------------------------:|:--------:|:------------------------------:|:-----------------------------------------:|:------------------------------------------------------------------------------:|
 |  `/api/social/comment/get`   |  `POST`  | Returns all comments on a post |           `{"postId": "UUID"}`            | `[{"id": "UUID", "postId":"UUID", "username": "string", "content": "string"}]` |
 | `/api/social/comment/upload` |  `POST`  |   Sends a comment on a post    | `{"postId": "UUID", "content": "string"}` |                   `{"type": "string", "message": "string"}`                    |
-| `/api/social/comment/remove` | `DELETE` |  Removes a comment on a post   |           `{"postId": "UUID"}`            |                   `{"type": "string", "message": "string"}`                    |
+| `/api/social/comment/remove` | `DELETE` |  Removes a comment on a post   |          `{"commendId": "UUID"}`          |                   `{"type": "string", "message": "string"}`                    |
 
 ### Social Info
 
