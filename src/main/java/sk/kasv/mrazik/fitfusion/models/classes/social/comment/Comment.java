@@ -12,15 +12,17 @@ public class Comment {
     private UUID userId; // user who commented
     private UUID postId;
     private String content;
+    private int likes;
 
     public Comment() {
     }
 
-    public Comment(UUID userId, UUID postId, String content) {
+    public Comment(UUID userId, UUID postId, String content, int likes) {
         this.id = UUID.randomUUID();
         this.userId = userId;
         this.postId = postId;
         this.content = content;
+        this.likes = likes;
     }
 
     public UUID id() {
@@ -39,6 +41,10 @@ public class Comment {
         return this.content;
     }
 
+    public int likes() {
+        return this.likes;
+    }
+
     public void id(UUID id) {
         this.id = id;
     }
@@ -53,5 +59,9 @@ public class Comment {
 
     public void content(String content) {
         this.content = content;
+    }
+
+    public void likes(int likes) {
+        this.likes = likes;
     }
 }

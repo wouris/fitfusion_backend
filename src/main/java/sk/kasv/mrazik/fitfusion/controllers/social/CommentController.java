@@ -18,7 +18,7 @@ import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -37,7 +37,7 @@ public class CommentController {
     }
 
     @PostMapping("/get")
-    public List<CommentDTO> getComments(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public Set<CommentDTO> getComments(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         String postId = JsonParser.parseString(data).getAsJsonObject().get("postId").getAsString();
 
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {

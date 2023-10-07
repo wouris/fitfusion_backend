@@ -1,10 +1,15 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
 
+import com.google.gson.JsonParser;
+import jakarta.transaction.Transactional;
 import org.springframework.web.bind.annotation.*;
+import sk.kasv.mrazik.fitfusion.database.CommentRepository;
+import sk.kasv.mrazik.fitfusion.database.LikeRepository;
 import sk.kasv.mrazik.fitfusion.database.PostRepository;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.*;
+import sk.kasv.mrazik.fitfusion.models.classes.social.likes.Like;
 import sk.kasv.mrazik.fitfusion.models.classes.social.post.Post;
 import sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO;
 import sk.kasv.mrazik.fitfusion.models.classes.social.post.PostRequest;
@@ -38,17 +43,21 @@ import java.util.UUID;
 public class PostController {
 
     private final PostRepository postRepo;
+    private final CommentRepository commentRepo;
     private final UserRepository userRepo;
 
-    public PostController(PostRepository postRepo, UserRepository userRepo) {
+    private final LikeRepository likeRepo;
+
+    public PostController(PostRepository postRepo, UserRepository userRepo, CommentRepository commentRepo, LikeRepository likeRepo) {
         this.postRepo = postRepo;
         this.userRepo = userRepo;
+        this.commentRepo = commentRepo;
+        this.likeRepo = likeRepo;
     }
 
     // TODO: Test this method properly after filling the database with posts and followings
     @PostMapping("/get")
     public Set<PostDTO> getPosts(@RequestBody PostRequest postRequest, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
@@ -61,17 +70,21 @@ public class PostController {
             posts.addAll(postRepo.findRandomPosts(id, postRequest.pageSize() - posts.size()));
         }
 
+        posts.forEach(post -> {
+            post.likes(likeRepo.findAllByPostId(post.id()).size());
+            post.topComments(commentRepo.findTopByPostId(post.id()));
+        });
+
         return posts;
     }
 
     @PostMapping("/upload")
     public JsonResponse uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-
-        Post post = GsonUtil.getInstance().fromJson(data, Post.class);
-
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
+
+        Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
         // don't have to check for post.authorId() because it is in request header and checked by token
         if (post.image() == null || post.description() == null) {
@@ -116,21 +129,12 @@ public class PostController {
     }
 
     @DeleteMapping("/remove")
-    public JsonResponse removePost(@RequestBody String postId, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        Post post = GsonUtil.getInstance().fromJson(postId, Post.class);
-
+    public JsonResponse removePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
 
-        if (post.id() == null) {
-            throw new BlankDataException("PostID is blank!");
-        }
-
-        // check if the post exists
-        if (!postRepo.existsById(post.id())) {
-            throw new NoRecordException("Post not found!");
-        }
+        UUID postId = verifyPostId(data);
 
         // check requester's role
         User user = userRepo.findById(id).orElse(null);
@@ -140,13 +144,73 @@ public class PostController {
 
         // check if the post belongs to the user
         if (user.role() != Role.ADMIN) {
-            if (!postRepo.findById(post.id()).get().userId().equals(id)) {
+            if (!postRepo.findById(postId).get().userId().equals(id)) {
                 throw new UnauthorizedActionException("Post does not belong to the user!");
             }
         }
 
-        postRepo.deleteById(post.id());
+        postRepo.deleteById(postId);
 
         return new JsonResponse(ResponseType.SUCCESS, "Post deleted!");
+    }
+
+    @PostMapping("/like")
+    public JsonResponse likePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
+        }
+
+        UUID postId = verifyPostId(data);
+
+        // check if the user already liked the post
+        if (likeRepo.existsByUserIdAndPostId(id, postId)) {
+            throw new RecordExistsException("User already liked the post!");
+        }
+
+        likeRepo.save(new Like(id, postId));
+
+        return new JsonResponse(ResponseType.SUCCESS, "Post liked!");
+    }
+
+    @Transactional
+    @DeleteMapping("/unlike")
+    public JsonResponse unlikePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
+        }
+
+        UUID postId = verifyPostId(data);
+
+        // check if the user already liked the post
+        if (!likeRepo.existsByUserIdAndPostId(id, postId)) {
+            throw new NoRecordException("User did not like the post!");
+        }
+
+        likeRepo.deleteByUserIdAndPostId(id, postId);
+
+        return new JsonResponse(ResponseType.SUCCESS, "Post unliked!");
+
+    }
+
+    private UUID verifyPostId(String data) {
+        String postIdString = JsonParser.parseString(data).getAsJsonObject().get("postId").getAsString();
+
+        UUID postId;
+        try {
+            if (postIdString == null) {
+                throw new BlankDataException("PostID is blank!");
+            }
+
+            postId = UUID.fromString(postIdString);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidTokenException("Wrong PostID format!");
+        }
+
+        // check if the post exists
+        if (!postRepo.existsById(postId)) {
+            throw new NoRecordException("Post not found!");
+        }
+
+        return postId;
     }
 }

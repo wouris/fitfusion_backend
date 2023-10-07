@@ -1,24 +1,16 @@
 package sk.kasv.mrazik.fitfusion.models.classes.social.likes;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-
+import java.io.Serializable;
 import java.util.UUID;
 
-
-@Entity(name = "likes")
-@IdClass(LikeId.class)
-public class Like {
-    @Id
+public class LikeId implements Serializable {
     private UUID userId;
-    @Id
     private UUID postId;
 
-    public Like() {
+    public LikeId() {
     }
 
-    public Like(UUID userId, UUID postId) {
+    public LikeId(UUID userId, UUID postId) {
         this.userId = userId;
         this.postId = postId;
     }
@@ -31,3 +23,4 @@ public class Like {
         return this.postId;
     }
 }
+

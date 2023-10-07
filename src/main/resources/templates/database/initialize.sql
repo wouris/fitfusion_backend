@@ -70,6 +70,7 @@ CREATE TABLE comments
     user_id UUID,
     post_id UUID,
     comment VARCHAR(255),
+    likes   INT DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (post_id) REFERENCES posts (id)
 );
