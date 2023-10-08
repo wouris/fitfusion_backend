@@ -1,6 +1,10 @@
 package sk.kasv.mrazik.fitfusion.models.classes.user;
 
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import sk.kasv.mrazik.fitfusion.models.serializers.SocialInfoSerializer;
+
+@JsonSerialize(using = SocialInfoSerializer.class)
 public class SocialInfo {
     private String username;
     private int workouts;

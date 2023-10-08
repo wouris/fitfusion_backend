@@ -78,7 +78,7 @@ public class PostController {
             comments.forEach(comment -> {
                 comment.likes(commentLikesRepo.countByCommentId(comment.id()));
             });
-            
+
             post.topComments(comments);
         });
 
@@ -95,7 +95,7 @@ public class PostController {
 
         // don't have to check for post.authorId() because it is in request header and checked by token
         if (post.image() == null || post.description() == null) {
-            throw new InvalidTokenException("Missing data!");
+            throw new BlankDataException("Missing data!");
         }
 
         byte[] imageBytes = Base64.getDecoder().decode(post.image());

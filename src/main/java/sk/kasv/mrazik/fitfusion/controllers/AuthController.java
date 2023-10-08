@@ -5,10 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.BadCredentialsException;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.RecordExistsException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.*;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
 import sk.kasv.mrazik.fitfusion.models.classes.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.classes.user.responses.AuthResponse;
@@ -88,7 +85,7 @@ public class AuthController {
     @PostMapping("/logout")
     public JsonResponse logout(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new BadCredentialsException("Wrong Token or user UUID, please re-login!");
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
 
         TokenUtil.getInstance().removeToken(id);

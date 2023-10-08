@@ -1,5 +1,7 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.database.SocialInfoRepository;
 import sk.kasv.mrazik.fitfusion.database.UserRepository;
@@ -24,8 +26,8 @@ public class UserController {
         this.socialInfoRepo = socialInfoRepo;
     }
 
-    @GetMapping("/{id}/info")
-    public SocialInfo getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId) {
+    @GetMapping(value = "/{id}/info", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SocialInfo> getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId) {
 
         if (TokenUtil.getInstance().isInvalidToken(userId, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
@@ -41,7 +43,6 @@ public class UserController {
         SocialInfo socialInfo = socialInfoRepo.getSocialInfo(id);
 
         socialInfo.username(user.username()); // this needs to be here as for some reason database returns username as null
-
-        return socialInfo;
+        return ResponseEntity.ok(socialInfo);
     }
 }

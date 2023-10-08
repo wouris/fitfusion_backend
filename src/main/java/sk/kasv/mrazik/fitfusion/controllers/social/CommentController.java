@@ -82,7 +82,7 @@ public class CommentController {
         comment.id(UUID.randomUUID());
         comment.userId(id);
 
-        if (comment.userId() == null || comment.postId() == null || comment.content() == null) {
+        if (comment.postId() == null || comment.content() == null) {
             throw new BlankDataException("Missing data!");
         }
 
@@ -114,7 +114,7 @@ public class CommentController {
 
         commentRepo.deleteById(commentId);
 
-        return new JsonResponse(ResponseType.SUCCESS, "Comment deleted!");
+        return new JsonResponse(ResponseType.SUCCESS, "Comment removed!");
     }
 
     @PostMapping("/like")
@@ -155,7 +155,7 @@ public class CommentController {
         String commentIdString = JsonParser.parseString(data).getAsJsonObject().get("commentId").getAsString();
 
         if (commentIdString == null) {
-            throw new BlankDataException("CommentID is blank!");
+            throw new BlankDataException("CommentId is blank!");
         }
 
         UUID commentId = UUID.fromString(commentIdString);
