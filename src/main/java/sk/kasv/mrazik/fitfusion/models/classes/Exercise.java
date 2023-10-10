@@ -74,6 +74,13 @@ public class Exercise {
         }
     }
 
+    public static Exercise findById(Exercise[] exercises, int id) {
+        return Arrays.stream(exercises)
+                .filter(exercise -> exercise.id() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
     public int id() {
         return id;
     }

@@ -1,30 +1,31 @@
 package sk.kasv.mrazik.fitfusion.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.core.io.Resource;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InternalServerErrorException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.models.classes.Exercise;
+import sk.kasv.mrazik.fitfusion.models.enums.exercises.BodyPart;
+import sk.kasv.mrazik.fitfusion.models.enums.exercises.Equipment;
 import sk.kasv.mrazik.fitfusion.models.enums.exercises.FilterOptions;
+import sk.kasv.mrazik.fitfusion.models.enums.exercises.Target;
 import sk.kasv.mrazik.fitfusion.utils.ExerciseReader;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
-import java.io.IOException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/exercises")
 public class ExerciseController {
 
     private final ExerciseReader exerciseReader;
-    private final ObjectMapper mapper;
+
 
     public ExerciseController(ExerciseReader exerciseReader, ObjectMapper mapper) {
         this.exerciseReader = exerciseReader;
-        this.mapper = mapper;
     }
 
     @GetMapping
@@ -34,18 +35,65 @@ public class ExerciseController {
         }
 
         FilterOptions options = Optional.ofNullable(filter)
-                .map(String::toUpperCase)
                 .map(FilterOptions::fromText)
                 .orElse(null);
 
-        try {
-            Resource resource = exerciseReader.getResource();
-            Exercise[] exercises = mapper.readValue(resource.getInputStream(), Exercise[].class);
+        return Exercise.sort(ExerciseReader.exercises(), options, value);
+    }
 
-            return Exercise.sort(exercises, options, value);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            throw new InternalServerErrorException("Error reading exercises from file!");
+    @GetMapping("/{id}")
+    public Exercise exerciseById(@PathVariable("id") String id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+        if (TokenUtil.getInstance().isInvalidToken(uuid, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
+
+        if (!NumberUtils.isNumber(id)) {
+            throw new InternalServerErrorException("ID is not a number!");
+        }
+
+        int index = Integer.parseInt(id);
+        Exercise exercise = Exercise.findById(ExerciseReader.exercises(), index);
+
+        if (exercise == null) {
+            throw new NoRecordException("No exercise found with ID: " + id);
+        }
+
+        return exercise;
+    }
+
+    @GetMapping("/bodyparts")
+    public Set<String> getAllBodyparts(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+        if (TokenUtil.getInstance().isInvalidToken(uuid, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
+        }
+
+        return Arrays
+                .stream(BodyPart.values())
+                .map(BodyPart::value)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    @GetMapping("/targets")
+    public Set<String> getAllTargets(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+        if (TokenUtil.getInstance().isInvalidToken(uuid, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
+        }
+
+        return Arrays
+                .stream(Target.values())
+                .map(Target::value)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    @GetMapping("/equipments")
+    public Set<String> getAllEquipments(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+        if (TokenUtil.getInstance().isInvalidToken(uuid, token)) {
+            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
+        }
+
+        return Arrays
+                .stream(Equipment.values())
+                .map(Equipment::value)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }
