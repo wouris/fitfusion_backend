@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/exercise")
+@RequestMapping("/api/exercises")
 public class ExerciseController {
 
     private final ExerciseReader exerciseReader;
@@ -27,7 +27,7 @@ public class ExerciseController {
         this.mapper = mapper;
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public Set<Exercise> allExercises(@RequestParam(value = "filter", required = false) String filter, @RequestParam(value = "value", required = false) String value, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         if (TokenUtil.getInstance().isInvalidToken(id, token)) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
