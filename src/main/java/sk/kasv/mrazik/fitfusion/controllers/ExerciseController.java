@@ -37,7 +37,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/{id}")
-    public Exercise exerciseById(@PathVariable("id") String id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+    public Exercise exerciseById(@PathVariable("id") String id) {
         if (!NumberUtils.isNumber(id)) {
             throw new InternalServerErrorException("ID is not a number!");
         }
@@ -53,7 +53,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/bodyparts")
-    public Set<String> getAllBodyparts(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+    public Set<String> getAllBodyparts() {
         return Arrays
                 .stream(BodyPart.values())
                 .map(BodyPart::value)
@@ -61,7 +61,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/targets")
-    public Set<String> getAllTargets(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+    public Set<String> getAllTargets() {
         return Arrays
                 .stream(Target.values())
                 .map(Target::value)
@@ -69,7 +69,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/equipments")
-    public Set<String> getAllEquipments(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID uuid) {
+    public Set<String> getAllEquipments() {
         return Arrays
                 .stream(Equipment.values())
                 .map(Equipment::value)

@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}/info", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SocialInfo> getUserInfo(@PathVariable UUID id, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID userId) {
+    public ResponseEntity<SocialInfo> getUserInfo(@PathVariable UUID id) {
 
         // search for user and get his info
         User user = userRepo.findById(id).orElse(null);

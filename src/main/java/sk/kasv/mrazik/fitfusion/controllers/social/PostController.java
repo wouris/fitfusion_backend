@@ -73,7 +73,7 @@ public class PostController {
 
     // TODO: Test this method properly after filling the database with posts and followings
     @PostMapping("/get")
-    public Set<PostDTO> getPosts(@RequestBody PostRequest postRequest, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public Set<PostDTO> getPosts(@RequestBody PostRequest postRequest, @RequestHeader("USER_ID") UUID id) {
 
         Set<PostDTO> posts = postRepo.findPostsByFollowing(id, postRequest.pageSize(), postRequest.pageOffset());
 
@@ -99,7 +99,7 @@ public class PostController {
     }
 
     @PostMapping("/upload")
-    public JsonResponse uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse uploadPost(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
 
         Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
@@ -146,7 +146,7 @@ public class PostController {
     }
 
     @DeleteMapping("/remove")
-    public JsonResponse removePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse removePost(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
         UUID postId = verifyPostId(data);
 
         // check requester's role
@@ -168,7 +168,7 @@ public class PostController {
     }
 
     @PostMapping("/like")
-    public JsonResponse likePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse likePost(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
 
         UUID postId = verifyPostId(data);
 
@@ -184,7 +184,7 @@ public class PostController {
 
     @Transactional
     @DeleteMapping("/unlike")
-    public JsonResponse unlikePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse unlikePost(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
 
         UUID postId = verifyPostId(data);
 

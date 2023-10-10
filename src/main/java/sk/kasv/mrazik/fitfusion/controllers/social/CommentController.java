@@ -45,7 +45,7 @@ public class CommentController {
     }
 
     @PostMapping("/get")
-    public Set<CommentDTO> getComments(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public Set<CommentDTO> getComments(@RequestBody String data) {
         String postId = JsonParser.parseString(data).getAsJsonObject().get("postId").getAsString();
 
         if (postId == null) {
@@ -63,7 +63,7 @@ public class CommentController {
     }
 
     @PostMapping("/upload")
-    public JsonResponse commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse commentPost(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
         Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
 
         // check if the post exists
@@ -84,7 +84,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/remove")
-    public JsonResponse removeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse removeComment(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
 
         UUID commentId = verifyCommentId(data);
 
@@ -107,7 +107,7 @@ public class CommentController {
     }
 
     @PostMapping("/like")
-    public JsonResponse likeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse likeComment(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
         UUID commentId = verifyCommentId(data);
 
         if (commentLikesRepo.existsByUserIdAndCommentId(id, commentId)) {
@@ -120,7 +120,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/unlike")
-    public JsonResponse dislikeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
+    public JsonResponse dislikeComment(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
         UUID commentId = verifyCommentId(data);
 
         if (!commentLikesRepo.existsByUserIdAndCommentId(id, commentId)) {
