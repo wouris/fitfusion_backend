@@ -4,7 +4,7 @@ package sk.kasv.mrazik.fitfusion.models.classes;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.InternalServerErrorException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidFilterValueException;
 import sk.kasv.mrazik.fitfusion.models.enums.exercises.BodyPart;
 import sk.kasv.mrazik.fitfusion.models.enums.exercises.Equipment;
 import sk.kasv.mrazik.fitfusion.models.enums.exercises.FilterOptions;
@@ -70,7 +70,7 @@ public class Exercise {
 
     private static void validateFilterValue(FilterOptions filter, String value) {
         if (!isValidFilterValue(filter, value)) {
-            throw new InternalServerErrorException("Invalid filter value");
+            throw new InvalidFilterValueException("Invalid filter value: '" + value + "' for filter: '" + filter.value() + "'!");
         }
     }
 

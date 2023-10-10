@@ -51,4 +51,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse(ex.getMessage()).toString());
     }
+
+    @ExceptionHandler(InvalidFilterValueException.class)
+    public ResponseEntity<String> handleInvalidFilterValueException(InvalidFilterValueException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()).toString());
+    }
 }
