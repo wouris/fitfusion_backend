@@ -1,11 +1,22 @@
 package sk.kasv.mrazik.fitfusion.controllers;
 
 
+import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-import sk.kasv.mrazik.fitfusion.database.UserRepository;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import sk.kasv.mrazik.fitfusion.databases.UserRepository;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.BadCredentialsException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.RecordExistsException;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
 import sk.kasv.mrazik.fitfusion.models.classes.user.auth.UserAuth;
 import sk.kasv.mrazik.fitfusion.models.classes.user.responses.AuthResponse;
@@ -13,8 +24,6 @@ import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
-
-import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*") // this is for development only
@@ -83,13 +92,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public JsonResponse logout(@RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
-
+    public JsonResponse logout(@RequestHeader("USER_ID") UUID id) {
         TokenUtil.getInstance().removeToken(id);
-
         return new JsonResponse(ResponseType.SUCCESS, "User logged out!");
     }
 }

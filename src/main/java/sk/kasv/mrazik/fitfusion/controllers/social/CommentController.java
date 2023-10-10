@@ -2,10 +2,10 @@ package sk.kasv.mrazik.fitfusion.controllers.social;
 
 import com.google.gson.JsonParser;
 import org.springframework.web.bind.annotation.*;
-import sk.kasv.mrazik.fitfusion.database.CommentLikesRepository;
-import sk.kasv.mrazik.fitfusion.database.CommentRepository;
-import sk.kasv.mrazik.fitfusion.database.PostRepository;
-import sk.kasv.mrazik.fitfusion.database.UserRepository;
+import sk.kasv.mrazik.fitfusion.databases.CommentLikesRepository;
+import sk.kasv.mrazik.fitfusion.databases.CommentRepository;
+import sk.kasv.mrazik.fitfusion.databases.PostRepository;
+import sk.kasv.mrazik.fitfusion.databases.UserRepository;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
@@ -48,10 +48,6 @@ public class CommentController {
     public Set<CommentDTO> getComments(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         String postId = JsonParser.parseString(data).getAsJsonObject().get("postId").getAsString();
 
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
-
         if (postId == null) {
             throw new BlankDataException("PostID is blank!");
         }
@@ -69,10 +65,6 @@ public class CommentController {
     @PostMapping("/upload")
     public JsonResponse commentPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
         Comment comment = GsonUtil.getInstance().fromJson(data, Comment.class);
-
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
 
         // check if the post exists
         if (!postRepo.existsById(comment.postId())) {
@@ -93,9 +85,6 @@ public class CommentController {
 
     @DeleteMapping("/remove")
     public JsonResponse removeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
 
         UUID commentId = verifyCommentId(data);
 
@@ -119,10 +108,6 @@ public class CommentController {
 
     @PostMapping("/like")
     public JsonResponse likeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
-
         UUID commentId = verifyCommentId(data);
 
         if (commentLikesRepo.existsByUserIdAndCommentId(id, commentId)) {
@@ -136,10 +121,6 @@ public class CommentController {
 
     @DeleteMapping("/unlike")
     public JsonResponse dislikeComment(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
-
         UUID commentId = verifyCommentId(data);
 
         if (!commentLikesRepo.existsByUserIdAndCommentId(id, commentId)) {

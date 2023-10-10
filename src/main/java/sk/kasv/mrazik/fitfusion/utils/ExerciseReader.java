@@ -1,6 +1,10 @@
 package sk.kasv.mrazik.fitfusion.utils;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.stream.JsonReader;
+
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -9,6 +13,7 @@ import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.models.classes.Exercise;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 @Component
 public class ExerciseReader {
@@ -23,7 +28,8 @@ public class ExerciseReader {
         }
 
         try {
-            exercises = mapper.readValue(r.getInputStream(), Exercise[].class);
+            JsonReader reader = new JsonReader(new InputStreamReader(r.getInputStream()));
+            exercises = GsonUtil.getInstance().fromJson(reader, Exercise[].class);
         } catch (IOException ex) {
             ex.printStackTrace();
             throw new InternalServerErrorException("Error reading exercises from file!");

@@ -1,4 +1,4 @@
-package sk.kasv.mrazik.fitfusion.database;
+package sk.kasv.mrazik.fitfusion.databases;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentLike;

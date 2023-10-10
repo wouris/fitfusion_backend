@@ -1,10 +1,10 @@
-package sk.kasv.mrazik.fitfusion.database;
+package sk.kasv.mrazik.fitfusion.databases;
 
-import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import sk.kasv.mrazik.fitfusion.models.classes.user.SocialInfo;
+
+import java.util.UUID;
 
 @Repository
 public class SocialInfoRepository {
@@ -28,14 +28,14 @@ public class SocialInfoRepository {
                 "WHERE u.id = ?";
 
         return jdbcTemplate.queryForObject(
-            sql,
-            (rs, rowNum) -> new SocialInfo(
-                rs.getString("username"),
-                rs.getInt("workout_count"),
-                rs.getInt("follower_count"),
-                rs.getInt("following_count")
-            ),
-            userId
+                sql,
+                (rs, rowNum) -> new SocialInfo(
+                        rs.getString("username"),
+                        rs.getInt("workout_count"),
+                        rs.getInt("follower_count"),
+                        rs.getInt("following_count")
+                ),
+                userId
         );
     }
 }

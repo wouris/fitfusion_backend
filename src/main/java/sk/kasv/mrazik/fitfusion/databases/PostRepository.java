@@ -1,4 +1,4 @@
-package sk.kasv.mrazik.fitfusion.database;
+package sk.kasv.mrazik.fitfusion.databases;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

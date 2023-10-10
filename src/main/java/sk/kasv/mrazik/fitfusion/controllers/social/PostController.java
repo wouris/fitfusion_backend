@@ -1,28 +1,6 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
 
-import com.google.gson.JsonParser;
-import jakarta.transaction.Transactional;
-import org.springframework.web.bind.annotation.*;
-import sk.kasv.mrazik.fitfusion.database.*;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.*;
-import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO;
-import sk.kasv.mrazik.fitfusion.models.classes.social.likes.Like;
-import sk.kasv.mrazik.fitfusion.models.classes.social.post.Post;
-import sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO;
-import sk.kasv.mrazik.fitfusion.models.classes.social.post.PostRequest;
-import sk.kasv.mrazik.fitfusion.models.classes.user.User;
-import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
-import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
-import sk.kasv.mrazik.fitfusion.models.enums.Role;
-import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
-import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,6 +11,44 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.JsonParser;
+
+import jakarta.transaction.Transactional;
+import sk.kasv.mrazik.fitfusion.databases.CommentLikesRepository;
+import sk.kasv.mrazik.fitfusion.databases.CommentRepository;
+import sk.kasv.mrazik.fitfusion.databases.LikeRepository;
+import sk.kasv.mrazik.fitfusion.databases.PostRepository;
+import sk.kasv.mrazik.fitfusion.databases.UserRepository;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.InternalServerErrorException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.RecordExistsException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.UnauthorizedActionException;
+import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO;
+import sk.kasv.mrazik.fitfusion.models.classes.social.likes.Like;
+import sk.kasv.mrazik.fitfusion.models.classes.social.post.Post;
+import sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO;
+import sk.kasv.mrazik.fitfusion.models.classes.social.post.PostRequest;
+import sk.kasv.mrazik.fitfusion.models.classes.user.User;
+import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
+import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
+import sk.kasv.mrazik.fitfusion.models.enums.Role;
+import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 
 
 @RestController
@@ -58,9 +74,6 @@ public class PostController {
     // TODO: Test this method properly after filling the database with posts and followings
     @PostMapping("/get")
     public Set<PostDTO> getPosts(@RequestBody PostRequest postRequest, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
 
         Set<PostDTO> posts = postRepo.findPostsByFollowing(id, postRequest.pageSize(), postRequest.pageOffset());
 
@@ -87,9 +100,6 @@ public class PostController {
 
     @PostMapping("/upload")
     public JsonResponse uploadPost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
 
         Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
@@ -137,10 +147,6 @@ public class PostController {
 
     @DeleteMapping("/remove")
     public JsonResponse removePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
-
         UUID postId = verifyPostId(data);
 
         // check requester's role
@@ -163,9 +169,6 @@ public class PostController {
 
     @PostMapping("/like")
     public JsonResponse likePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
 
         UUID postId = verifyPostId(data);
 
@@ -182,9 +185,6 @@ public class PostController {
     @Transactional
     @DeleteMapping("/unlike")
     public JsonResponse unlikePost(@RequestBody String data, @RequestHeader("Authorization") String token, @RequestHeader("USER_ID") UUID id) {
-        if (TokenUtil.getInstance().isInvalidToken(id, token)) {
-            throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
-        }
 
         UUID postId = verifyPostId(data);
 
