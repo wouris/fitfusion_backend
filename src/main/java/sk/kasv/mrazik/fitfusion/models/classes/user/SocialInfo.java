@@ -49,4 +49,14 @@ public class SocialInfo {
     public void following(int following) {
         this.following = following;
     }
+
+    @Override
+    public String toString() {
+        return "SocialInfo{" +
+                "username='" + username + '\'' +
+                ", workouts=" + workouts +
+                ", followers=" + followers +
+                ", following=" + following +
+                '}';
+    }
 }

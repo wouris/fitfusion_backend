@@ -7,7 +7,6 @@ import sk.kasv.mrazik.fitfusion.databases.CommentRepository;
 import sk.kasv.mrazik.fitfusion.databases.PostRepository;
 import sk.kasv.mrazik.fitfusion.databases.UserRepository;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.UnauthorizedActionException;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.Comment;
@@ -18,7 +17,6 @@ import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
-import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.util.Set;
 import java.util.UUID;

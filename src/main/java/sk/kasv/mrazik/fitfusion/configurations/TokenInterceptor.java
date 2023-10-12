@@ -25,7 +25,7 @@ public class TokenInterceptor implements HandlerInterceptor {
 
         try {
             uuid = UUID.fromString(id);
-        } catch (IllegalArgumentException ex) {
+        } catch (NullPointerException | IllegalArgumentException ex) {
             throw new InvalidTokenException("Wrong Token or user UUID, please re-login!");
         }
 

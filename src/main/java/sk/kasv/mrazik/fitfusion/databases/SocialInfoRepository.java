@@ -1,9 +1,13 @@
 package sk.kasv.mrazik.fitfusion.databases;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import sk.kasv.mrazik.fitfusion.models.classes.user.SocialInfo;
 
+import java.sql.Types;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -16,16 +20,14 @@ public class SocialInfoRepository {
     }
 
     public SocialInfo getSocialInfo(UUID userId) {
+        String id = userId.toString();
         String sql = "SELECT " +
                 "  u.username AS username, " +
-                "  COALESCE(COUNT(DISTINCT w.user_id), 0) AS workout_count, " +
-                "  COALESCE(COUNT(DISTINCT f.follower_id), 0) AS follower_count, " +
-                "  COALESCE(COUNT(DISTINCT fo.following_id), 0) AS following_count " +
-                "FROM users u " +
-                "LEFT JOIN workouts w ON u.id = w.user_id " +
-                "LEFT JOIN followers f ON u.id = f.user_id " +
-                "LEFT JOIN following fo ON u.id = fo.user_id " +
-                "WHERE u.id = ?";
+                "  (SELECT COUNT(*) FROM workouts w WHERE w.user_id = ?) AS workout_count, " +
+                "  (SELECT COUNT(*) FROM follows f WHERE f.following_id = ?) AS follower_count, " +
+                "  (SELECT COUNT(*) FROM follows f WHERE f.follower_id = ?) AS following_count " +
+                "  FROM users u" +
+                "  WHERE u.id = ?";
 
         return jdbcTemplate.queryForObject(
                 sql,
@@ -35,7 +37,7 @@ public class SocialInfoRepository {
                         rs.getInt("follower_count"),
                         rs.getInt("following_count")
                 ),
-                userId
+                id, id, id, id
         );
     }
 }

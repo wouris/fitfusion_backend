@@ -8,9 +8,6 @@ CREATE TRIGGER UserDelete
     ON users
     FOR EACH ROW
 BEGIN
-    -- Delete related records from 'account_info'
-    DELETE FROM account_info WHERE account_info.user_id = OLD.id;
-
     -- Delete related records from 'workouts'
     DELETE FROM workouts WHERE workouts.user_id = OLD.id;
 

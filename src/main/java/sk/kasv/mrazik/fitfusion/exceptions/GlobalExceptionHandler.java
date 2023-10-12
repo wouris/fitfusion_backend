@@ -57,4 +57,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ex.getMessage()).toString());
     }
+
+    @ExceptionHandler(InvalidInteractionException.class)
+    public ResponseEntity<String> handleInvalidInteractionException(InvalidInteractionException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(ex.getMessage()).toString());
+    }
 }

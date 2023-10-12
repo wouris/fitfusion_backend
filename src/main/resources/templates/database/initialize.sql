@@ -27,21 +27,12 @@ CREATE TABLE workouts
     FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
--- Create the 'followers' table
-CREATE TABLE followers
-(
-    user_id     UUID NOT NULL,
-    follower_id UUID NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (follower_id) REFERENCES users (id)
-);
-
 -- Create the 'following' table
-CREATE TABLE following
+CREATE TABLE follows
 (
-    user_id      UUID NOT NULL,
-    following_id UUID NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
+    follower_id     UUID NOT NULL,
+    following_id    UUID NOT NULL,
+    FOREIGN KEY (follower_id) REFERENCES users (id),
     FOREIGN KEY (following_id) REFERENCES users (id)
 );
 
