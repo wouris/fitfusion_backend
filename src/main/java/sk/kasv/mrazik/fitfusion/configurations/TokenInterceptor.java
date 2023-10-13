@@ -3,8 +3,10 @@ package sk.kasv.mrazik.fitfusion.configurations;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.HandlerInterceptor;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.MissingHeaderException;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.util.UUID;
@@ -21,6 +23,8 @@ public class TokenInterceptor implements HandlerInterceptor {
         String id = request.getHeader("USER_ID");
         String token = request.getHeader("Authorization");
 
+        checkHeaders(token, id);
+
         UUID uuid;
 
         try {
@@ -34,6 +38,23 @@ public class TokenInterceptor implements HandlerInterceptor {
         }
 
         return true;
+    }
+
+    private void checkHeaders(String token, String id) {
+        StringBuilder string = new StringBuilder();
+        if (token == null) {
+            string.append("The header for token ");
+        }
+
+        if (id == null) {
+            string.append(string.length() > 0 ? "and for users id " : "The header for users id ");
+        }
+        
+        System.out.println(string);
+
+        if (string.length() > 0) {
+            throw new InvalidTokenException(string.append("is missing!").toString());
+        }
     }
 }
 

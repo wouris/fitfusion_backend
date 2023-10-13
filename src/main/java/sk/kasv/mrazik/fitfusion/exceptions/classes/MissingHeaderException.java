@@ -11,7 +11,7 @@ import sk.kasv.mrazik.fitfusion.models.classes.ErrorResponse;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 
 @ControllerAdvice
-public class NoHeadersException extends ResponseEntityExceptionHandler {
+public class MissingHeaderException extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         String error = GsonUtil.getInstance().toJson(new ErrorResponse(ex.getMessage()));
