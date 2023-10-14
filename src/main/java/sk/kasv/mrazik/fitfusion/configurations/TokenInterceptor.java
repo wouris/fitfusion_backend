@@ -3,10 +3,8 @@ package sk.kasv.mrazik.fitfusion.configurations;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.HandlerInterceptor;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.MissingHeaderException;
 import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.util.UUID;

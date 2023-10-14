@@ -1,13 +1,9 @@
 package sk.kasv.mrazik.fitfusion.databases;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import sk.kasv.mrazik.fitfusion.models.classes.user.SocialInfo;
 
-import java.sql.Types;
-import java.util.List;
 import java.util.UUID;
 
 @Repository

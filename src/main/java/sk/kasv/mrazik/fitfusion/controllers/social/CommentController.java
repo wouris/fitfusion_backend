@@ -1,12 +1,16 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
 import com.google.gson.JsonParser;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.databases.CommentLikesRepository;
 import sk.kasv.mrazik.fitfusion.databases.CommentRepository;
 import sk.kasv.mrazik.fitfusion.databases.PostRepository;
 import sk.kasv.mrazik.fitfusion.databases.UserRepository;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
+import sk.kasv.mrazik.fitfusion.exceptions.classes.InternalServerErrorException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.UnauthorizedActionException;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.Comment;
@@ -81,6 +85,7 @@ public class CommentController {
         return new JsonResponse(ResponseType.SUCCESS, "Comment created!");
     }
 
+    @Transactional
     @DeleteMapping("/remove")
     public JsonResponse removeComment(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
 
@@ -117,6 +122,7 @@ public class CommentController {
         return new JsonResponse(ResponseType.SUCCESS, "Comment liked!");
     }
 
+    @Transactional
     @DeleteMapping("/unlike")
     public JsonResponse dislikeComment(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
         UUID commentId = verifyCommentId(data);
@@ -137,7 +143,12 @@ public class CommentController {
             throw new BlankDataException("CommentId is blank!");
         }
 
-        UUID commentId = UUID.fromString(commentIdString);
+        UUID commentId;
+        try {
+            commentId = UUID.fromString(commentIdString);
+        } catch (IllegalArgumentException ex) {
+            throw new InternalServerErrorException("CommentId is not a valid UUID!");
+        }
 
         // check if the comment exists
         if (!commentRepo.existsById(commentId)) {

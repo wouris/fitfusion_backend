@@ -1,10 +1,8 @@
 package sk.kasv.mrazik.fitfusion.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.web.bind.annotation.*;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InternalServerErrorException;
-import sk.kasv.mrazik.fitfusion.exceptions.classes.InvalidTokenException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
 import sk.kasv.mrazik.fitfusion.models.classes.Exercise;
 import sk.kasv.mrazik.fitfusion.models.enums.exercises.BodyPart;
@@ -12,7 +10,6 @@ import sk.kasv.mrazik.fitfusion.models.enums.exercises.Equipment;
 import sk.kasv.mrazik.fitfusion.models.enums.exercises.FilterOptions;
 import sk.kasv.mrazik.fitfusion.models.enums.exercises.Target;
 import sk.kasv.mrazik.fitfusion.utils.ExerciseReader;
-import sk.kasv.mrazik.fitfusion.utils.TokenUtil;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,12 +17,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/exercises")
 public class ExerciseController {
-
-    private final ExerciseReader exerciseReader;
-    
-    public ExerciseController(ExerciseReader exerciseReader, ObjectMapper mapper) {
-        this.exerciseReader = exerciseReader;
-    }
 
     @GetMapping
     public Set<Exercise> allExercises(@RequestParam(value = "filter", required = false) String filter, @RequestParam(value = "value", required = false) String value) {
