@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface CommentRepository extends JpaRepository<Comment, UUID> {
 
-    @Query("SELECT NEW sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO(c.id, c.postId, u.username, c.content, cl.likeCount) " +
+    @Query("SELECT NEW sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO(c.id, c.postId, u.username, c.content, cl.likeCount, c.createdAt) " +
             "FROM comments c " +
             "JOIN users u ON u.id = c.userId " +
             "LEFT JOIN (SELECT cl.commentId as cID, COUNT(cl) AS likeCount FROM comment_likes cl GROUP BY cl.commentId) cl " +
@@ -19,7 +19,7 @@ public interface CommentRepository extends JpaRepository<Comment, UUID> {
             "ORDER BY COALESCE(cl.likeCount, 0) DESC ")
     Set<CommentDTO> findAllByPostId(UUID postId);
 
-    @Query("SELECT NEW sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO(c.id, c.postId, u.username, c.content, cl.likeCount) " +
+    @Query("SELECT NEW sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO(c.id, c.postId, u.username, c.content, cl.likeCount, c.createdAt) " +
             "FROM comments c " +
             "JOIN users u ON u.id = c.userId " +
             "LEFT JOIN (SELECT cl.commentId as cID, COUNT(cl) AS likeCount FROM comment_likes cl GROUP BY cl.commentId) cl " +

@@ -3,6 +3,7 @@ package sk.kasv.mrazik.fitfusion.models.classes.social.post;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO;
 import sk.kasv.mrazik.fitfusion.models.serializers.PostDTOSerializer;
+import sk.kasv.mrazik.fitfusion.utils.TimeUtil;
 
 import java.sql.Timestamp;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class PostDTO {
         this.image = image;
         this.description = description;
         this.username = username;
-        this.createdAgo = getTimeAgo(createdAt);
+        this.createdAgo = TimeUtil.getTimeAgo(createdAt);
     }
 
     public PostDTO(UUID id, String image, String description, String username, String createdAgo, Set<CommentDTO> topComments, int likes) {
@@ -37,30 +38,6 @@ public class PostDTO {
         this.createdAgo = createdAgo;
         this.topComments = topComments;
         this.likes = likes;
-    }
-
-    private static String getTimeAgo(Timestamp createdAt) {
-        long now = System.currentTimeMillis();
-        long createdAtMillis = createdAt.getTime();
-        long diff = now - createdAtMillis;
-
-        long seconds = diff / 1000;
-        if (seconds < 60) {
-            return seconds + " seconds ago";
-        }
-
-        long minutes = seconds / 60;
-        if (minutes < 60) {
-            return minutes + " minutes ago";
-        }
-
-        long hours = minutes / 60;
-        if (hours < 24) {
-            return hours + " hours ago";
-        }
-
-        long days = hours / 24;
-        return days + " days ago";
     }
 
     public UUID id() {

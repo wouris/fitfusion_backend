@@ -6,23 +6,24 @@ import jakarta.persistence.Id;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-@Entity(name = "comments")
-public class Comment {
+@Entity(name = "comment_replies")
+public class Reply {
     @Id
     private UUID id;
-    private UUID userId; // user who commented
-    private UUID postId;
+    private UUID userId;
+    private UUID commentId;
     private String content;
     private Timestamp createdAt;
 
-    public Comment() {
+    public Reply() {
     }
 
-    public Comment(UUID userId, UUID postId, String content) {
+    public Reply(UUID userId, UUID commentId, String content, Timestamp createdAt) {
         this.id = UUID.randomUUID();
         this.userId = userId;
-        this.postId = postId;
+        this.commentId = commentId;
         this.content = content;
+        this.createdAt = createdAt;
     }
 
     public UUID id() {
@@ -33,16 +34,12 @@ public class Comment {
         return this.userId;
     }
 
-    public UUID postId() {
-        return this.postId;
+    public UUID commentId() {
+        return this.commentId;
     }
 
     public String content() {
         return this.content;
-    }
-
-    public Timestamp createdAt() {
-        return this.createdAt;
     }
 
     public void id(UUID id) {
@@ -53,12 +50,16 @@ public class Comment {
         this.userId = userId;
     }
 
-    public void postId(UUID postId) {
-        this.postId = postId;
+    public void commentId(UUID commentId) {
+        this.commentId = commentId;
     }
 
     public void content(String content) {
         this.content = content;
+    }
+
+    public Timestamp createdAt() {
+        return this.createdAt;
     }
 
     public void createdAt(Timestamp createdAt) {

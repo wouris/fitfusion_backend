@@ -1,14 +1,9 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
 import com.google.gson.JsonParser;
-
 import jakarta.transaction.Transactional;
-
 import org.springframework.web.bind.annotation.*;
-import sk.kasv.mrazik.fitfusion.databases.CommentLikesRepository;
-import sk.kasv.mrazik.fitfusion.databases.CommentRepository;
-import sk.kasv.mrazik.fitfusion.databases.PostRepository;
-import sk.kasv.mrazik.fitfusion.databases.UserRepository;
+import sk.kasv.mrazik.fitfusion.databases.*;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.BlankDataException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.InternalServerErrorException;
 import sk.kasv.mrazik.fitfusion.exceptions.classes.NoRecordException;
@@ -16,12 +11,14 @@ import sk.kasv.mrazik.fitfusion.exceptions.classes.UnauthorizedActionException;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.Comment;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentDTO;
 import sk.kasv.mrazik.fitfusion.models.classes.social.comment.CommentLike;
+import sk.kasv.mrazik.fitfusion.models.classes.social.comment.Reply;
 import sk.kasv.mrazik.fitfusion.models.classes.user.User;
 import sk.kasv.mrazik.fitfusion.models.classes.user.responses.JsonResponse;
 import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,6 +29,7 @@ public class CommentController {
 
     private final CommentRepository commentRepo;
     private final CommentLikesRepository commentLikesRepo;
+    private final ReplyRepository replyRepo;
     private final PostRepository postRepo;
     private final UserRepository userRepo;
 
@@ -39,11 +37,13 @@ public class CommentController {
             CommentRepository commentRepo,
             PostRepository postRepo,
             UserRepository userRepo,
-            CommentLikesRepository commentLikesRepo) {
+            CommentLikesRepository commentLikesRepo,
+            ReplyRepository replyRepo) {
         this.commentRepo = commentRepo;
         this.postRepo = postRepo;
         this.userRepo = userRepo;
         this.commentLikesRepo = commentLikesRepo;
+        this.replyRepo = replyRepo;
     }
 
     @PostMapping("/get")
@@ -61,7 +61,13 @@ public class CommentController {
             throw new NoRecordException("Post not found!");
         }
 
-        return commentRepo.findAllByPostId(postUUID);
+        Set<CommentDTO> comments = commentRepo.findAllByPostId(postUUID);
+
+        comments.forEach(comment -> {
+            comment.replies(replyRepo.findAllByCommentId(comment.id()));
+        });
+
+        return comments;
     }
 
     @PostMapping("/upload")
@@ -75,6 +81,7 @@ public class CommentController {
 
         comment.id(UUID.randomUUID());
         comment.userId(id);
+        comment.createdAt(new Timestamp(System.currentTimeMillis()));
 
         if (comment.postId() == null || comment.content() == null) {
             throw new BlankDataException("Missing data!");
@@ -113,11 +120,17 @@ public class CommentController {
     public JsonResponse likeComment(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
         UUID commentId = verifyCommentId(data);
 
-        if (commentLikesRepo.existsByUserIdAndCommentId(id, commentId)) {
+        if (commentLikesRepo.existsByUserIdAndCommentId(id, commentId) ||
+            commentLikesRepo.existsByUserIdAndReplyId(id, commentId)) {
             throw new UnauthorizedActionException("User already liked this comment!");
         }
-
-        commentLikesRepo.save(new CommentLike(id, commentId));
+        
+        if(commentRepo.existsById(commentId)){
+            commentLikesRepo.save(new CommentLike(id, commentId, null));
+        } else {
+            commentLikesRepo.save(new CommentLike(id, null, commentId));
+        }
+        
 
         return new JsonResponse(ResponseType.SUCCESS, "Comment liked!");
     }
@@ -136,6 +149,21 @@ public class CommentController {
         return new JsonResponse(ResponseType.SUCCESS, "Comment unliked!");
     }
 
+    @PostMapping("/reply")
+    public JsonResponse replyComment(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
+        UUID commentId = verifyCommentId(data);
+
+        String content = JsonParser.parseString(data).getAsJsonObject().get("content").getAsString();
+
+        if (content == null) {
+            throw new BlankDataException("Content is blank!");
+        }
+
+        replyRepo.save(new Reply(id, commentId, content, new Timestamp(System.currentTimeMillis())));
+
+        return new JsonResponse(ResponseType.SUCCESS, "Comment replied!");
+    }
+
     private UUID verifyCommentId(String data) {
         String commentIdString = JsonParser.parseString(data).getAsJsonObject().get("commentId").getAsString();
 
@@ -152,7 +180,9 @@ public class CommentController {
 
         // check if the comment exists
         if (!commentRepo.existsById(commentId)) {
-            throw new NoRecordException("Comment not found!");
+            if(!replyRepo.existsById(commentId)) {
+                throw new NoRecordException("Comment not found!");
+            }
         }
 
         return commentId;

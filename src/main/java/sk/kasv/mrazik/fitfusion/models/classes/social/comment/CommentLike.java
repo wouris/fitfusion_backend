@@ -13,13 +13,16 @@ public class CommentLike {
     private UUID userId;
     @Id
     private UUID commentId;
+    @Id
+    private UUID replyId;
 
     public CommentLike() {
     }
 
-    public CommentLike(UUID userId, UUID commentId) {
+    public CommentLike(UUID userId, UUID commentId, UUID replyId) {
         this.userId = userId;
         this.commentId = commentId;
+        this.replyId = replyId;
     }
 
     public UUID userId() {
@@ -28,5 +31,9 @@ public class CommentLike {
 
     public UUID commentId() {
         return this.commentId;
+    }
+
+    public UUID replyId() {
+        return this.replyId;
     }
 }

@@ -1,27 +1,26 @@
 package sk.kasv.mrazik.fitfusion.models.classes.social.comment;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import sk.kasv.mrazik.fitfusion.models.serializers.CommentDTOSerializer;
+import sk.kasv.mrazik.fitfusion.models.serializers.ReplyDTOSerializer;
 import sk.kasv.mrazik.fitfusion.utils.TimeUtil;
 
 import java.sql.Timestamp;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
-@JsonSerialize(using = CommentDTOSerializer.class)
-public class CommentDTO {
-    private final UUID id;
-    private final UUID postId;
-    private final String username;
-    private final String content;
+@JsonSerialize(using = ReplyDTOSerializer.class)
+public class ReplyDTO {
+    private UUID id;
+    private String username;
+    private String content;
     private int likes;
     private String createdAgo;
-    private Set<ReplyDTO> replies;
 
-    public CommentDTO(UUID id, UUID postId, String username, String content, Long likes, Timestamp createdAt) {
+    public ReplyDTO() {
+    }
+
+    public ReplyDTO(UUID id, String username, String content, Long likes, Timestamp createdAt) {
         this.id = id;
-        this.postId = postId;
         this.username = username;
         this.content = content;
         this.likes = Optional.ofNullable(likes).orElse(0L).intValue();
@@ -30,10 +29,6 @@ public class CommentDTO {
 
     public UUID id() {
         return this.id;
-    }
-
-    public UUID postId() {
-        return this.postId;
     }
 
     public String username() {
@@ -52,15 +47,23 @@ public class CommentDTO {
         return this.createdAgo;
     }
 
-    public Set<ReplyDTO> replies() {
-        return this.replies;
+    public void id(UUID id) {
+        this.id = id;
+    }
+
+    public void username(String username) {
+        this.username = username;
+    }
+
+    public void content(String content) {
+        this.content = content;
     }
 
     public void likes(int likes) {
         this.likes = likes;
     }
 
-    public void replies(Set<ReplyDTO> replies) {
-        this.replies = replies;
+    public void createdAgo(String createdAgo) {
+        this.createdAgo = createdAgo;
     }
 }

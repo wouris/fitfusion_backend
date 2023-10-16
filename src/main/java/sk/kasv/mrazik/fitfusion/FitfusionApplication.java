@@ -7,9 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 @SpringBootApplication
 public class FitfusionApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(FitfusionApplication.class, args);
 	}
-
 }
