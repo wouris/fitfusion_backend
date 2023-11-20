@@ -118,4 +118,9 @@ public class UserController {
 
         return new JsonResponse(ResponseType.SUCCESS, "User unfollowed successfully!");
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<Iterable<User>> getAllUsers() {
+        return ResponseEntity.ok(userRepo.findAll());
+    }
 }
