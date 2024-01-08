@@ -15,6 +15,7 @@ public class SocialInfoSerializer extends JsonSerializer<SocialInfo> {
         gen.writeNumberField("workouts", value.workouts());
         gen.writeNumberField("followers", value.followers());
         gen.writeNumberField("following", value.following());
+        gen.writeStringField("avatar", value.avatar());
         gen.writeEndObject();
     }
 }

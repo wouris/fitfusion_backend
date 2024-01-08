@@ -19,6 +19,7 @@ public class SocialInfoRepository {
         String id = userId.toString();
         String sql = "SELECT " +
                 "  u.username AS username, " +
+                "  u.avatar AS avatar, " +
                 "  (SELECT COUNT(*) FROM workouts w WHERE w.user_id = ?) AS workout_count, " +
                 "  (SELECT COUNT(*) FROM follows f WHERE f.following_id = ?) AS follower_count, " +
                 "  (SELECT COUNT(*) FROM follows f WHERE f.follower_id = ?) AS following_count " +
@@ -31,7 +32,8 @@ public class SocialInfoRepository {
                         rs.getString("username"),
                         rs.getInt("workout_count"),
                         rs.getInt("follower_count"),
-                        rs.getInt("following_count")
+                        rs.getInt("following_count"),
+                        rs.getString("avatar")
                 ),
                 id, id, id, id
         );

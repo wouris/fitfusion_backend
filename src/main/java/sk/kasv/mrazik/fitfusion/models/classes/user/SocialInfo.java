@@ -10,12 +10,14 @@ public class SocialInfo {
     private int workouts;
     private int followers;
     private int following;
+    private String avatar; // base64
 
-    public SocialInfo(String username, int workouts, int followers, int following) {
+    public SocialInfo(String username, int workouts, int followers, int following, String avatar) {
         this.username = username;
         this.workouts = workouts;
         this.followers = followers;
         this.following = following;
+        this.avatar = avatar;
     }
 
     public String username() {
@@ -48,6 +50,14 @@ public class SocialInfo {
 
     public void following(int following) {
         this.following = following;
+    }
+
+    public void avatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String avatar() {
+        return this.avatar;
     }
 
     @Override

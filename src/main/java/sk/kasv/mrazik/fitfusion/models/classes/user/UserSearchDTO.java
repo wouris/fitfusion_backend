@@ -17,5 +17,6 @@ import java.util.UUID;
 public class UserSearchDTO {
     private UUID id;
     private String username;
+    private SocialInfo socialInfo;
     private Role role;
 }

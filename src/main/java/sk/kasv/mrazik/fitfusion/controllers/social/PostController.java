@@ -60,7 +60,6 @@ public class PostController {
     private final CommentRepository commentRepo;
     private final CommentLikesRepository commentLikesRepo;
     private final UserRepository userRepo;
-
     private final LikeRepository likeRepo;
 
     public PostController(PostRepository postRepo, UserRepository userRepo, CommentRepository commentRepo, LikeRepository likeRepo, CommentLikesRepository commentLikesRepo) {

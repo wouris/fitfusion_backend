@@ -14,7 +14,8 @@ CREATE TABLE users
     email             VARCHAR(255) UNIQUE,
     password          VARCHAR(255) NOT NULL,
     registration_date DATETIME     DEFAULT CURRENT_TIMESTAMP,
-    role              VARCHAR(255) DEFAULT 'USER'
+    role              VARCHAR(255) DEFAULT 'USER',
+    avatar            LONGTEXT
 );
 
 -- Create the 'workouts' table
