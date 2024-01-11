@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
 
-    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, u.username, p.createdAt)" +
+    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, u.avatar, u.username, p.createdAt)" +
             "FROM posts p " +
             "INNER JOIN follows f ON p.userId = f.followingId " +
             "LEFT JOIN users u ON p.userId = u.id " +
@@ -20,7 +20,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "LIMIT ?2 OFFSET ?3")
     Set<PostDTO> findPostsByFollowing(UUID userId, int pageSize, int pageOffset);
 
-    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, u.username, p.createdAt) " +
+    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, u.avatar, u.username, p.createdAt) " +
             "FROM posts p " +
             "LEFT JOIN users u ON p.userId = u.id " +
             "WHERE p.userId != ?1 " +

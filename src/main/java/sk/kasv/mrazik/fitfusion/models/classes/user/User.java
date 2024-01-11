@@ -16,6 +16,7 @@ public class User {
     private String email;
     private String username;
     private String password;
+    private String avatar; // base64
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -66,6 +67,14 @@ public class User {
 
     public void email(String email) {
         this.email = email;
+    }
+
+    public void avatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String avatar() {
+        return this.avatar;
     }
 
     public void password(String password) {

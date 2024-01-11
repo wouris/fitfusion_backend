@@ -15,6 +15,7 @@ public class PostDTO {
     private String image;
     private String description;
     private String username;
+    private String avatar; // base64
     private String createdAgo;
     private Set<CommentDTO> topComments;
     private int likes;
@@ -22,11 +23,12 @@ public class PostDTO {
     public PostDTO() {
     }
 
-    public PostDTO(UUID id, String image, String description, String username, Timestamp createdAt) {
+    public PostDTO(UUID id, String image, String description, String avatar, String username, Timestamp createdAt) {
         this.id = id;
         this.image = image;
         this.description = description;
         this.username = username;
+        this.avatar = avatar;
         this.createdAgo = TimeUtil.getTimeAgo(createdAt);
     }
 
@@ -66,6 +68,14 @@ public class PostDTO {
 
     public int likes(int likes) {
         return this.likes = likes;
+    }
+
+    public String avatar() {
+        return avatar;
+    }
+
+    public void avatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public Set<CommentDTO> topComments() {

@@ -17,6 +17,7 @@ public class PostDTOSerializer extends JsonSerializer<PostDTO> {
         jsonGenerator.writeStringField("image", postDTO.image());
         jsonGenerator.writeStringField("description", postDTO.description());
         jsonGenerator.writeStringField("username", postDTO.username());
+        jsonGenerator.writeStringField("avatar", postDTO.avatar());
         jsonGenerator.writeStringField("createdAgo", postDTO.createdAgo());
         jsonGenerator.writeNumberField("likes", postDTO.likes());
 
