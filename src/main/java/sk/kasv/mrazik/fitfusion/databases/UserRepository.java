@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     User findByUsernameOrEmail(String username, String email);
 
-    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.user.UserSearchDTO(u.id, u.username, u.role) FROM users u")
+    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.user.UserSearchDTO(u.id, u.username, u.avatar, u.role) FROM users u")
     List<UserSearchDTO> getAllSearchDTOs();
 
 }
