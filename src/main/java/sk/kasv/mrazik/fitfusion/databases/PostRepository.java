@@ -33,5 +33,12 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "LIMIT ?2")
     Set<PostDTO> findRandomPosts(UUID followerId, int pageSize);
 
+    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, u.avatar, u.username, p.createdAt) " +
+            "FROM posts p " +
+            "LEFT JOIN users u ON p.userId = u.id " +
+            "WHERE p.userId = ?1 " +
+            "ORDER BY p.createdAt DESC")
+    Set<PostDTO> findPostsByUserId(UUID userId);
+
 }
 

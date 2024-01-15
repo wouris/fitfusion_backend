@@ -1,6 +1,5 @@
 package sk.kasv.mrazik.fitfusion.controllers.social;
 
-
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -20,6 +19,8 @@ import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -50,7 +51,6 @@ import sk.kasv.mrazik.fitfusion.models.enums.ResponseType;
 import sk.kasv.mrazik.fitfusion.models.enums.Role;
 import sk.kasv.mrazik.fitfusion.utils.GsonUtil;
 
-
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*") // this is for development only
 @RequestMapping("/api/social/post")
@@ -62,7 +62,8 @@ public class PostController {
     private final UserRepository userRepo;
     private final LikeRepository likeRepo;
 
-    public PostController(PostRepository postRepo, UserRepository userRepo, CommentRepository commentRepo, LikeRepository likeRepo, CommentLikesRepository commentLikesRepo) {
+    public PostController(PostRepository postRepo, UserRepository userRepo, CommentRepository commentRepo,
+            LikeRepository likeRepo, CommentLikesRepository commentLikesRepo) {
         this.postRepo = postRepo;
         this.userRepo = userRepo;
         this.commentRepo = commentRepo;
@@ -70,7 +71,6 @@ public class PostController {
         this.commentLikesRepo = commentLikesRepo;
     }
 
-    // TODO: Test this method properly after filling the database with posts and followings
     @PostMapping("/get")
     public Set<PostDTO> getPosts(@RequestBody PostRequest postRequest, @RequestHeader("USER_ID") UUID id) {
 
@@ -97,12 +97,35 @@ public class PostController {
         return posts;
     }
 
+    @GetMapping("/get/{id}")
+    public Set<PostDTO> getUserPosts(@PathVariable(name = "id") String id) {
+
+        UUID userId = UUID.fromString(id);
+
+        Set<PostDTO> posts = postRepo.findPostsByUserId(userId);
+
+        posts.forEach(post -> {
+            post.likes(likeRepo.countByPostId(post.id()));
+
+            Set<CommentDTO> comments = commentRepo.findTopByPostId(post.id());
+
+            comments.forEach(comment -> {
+                comment.likes(commentLikesRepo.countByCommentId(comment.id()));
+            });
+
+            post.topComments(comments);
+        });
+
+        return posts;
+    }
+
     @PostMapping("/upload")
     public JsonResponse uploadPost(@RequestBody String data, @RequestHeader("USER_ID") UUID id) {
 
         Post post = GsonUtil.getInstance().fromJson(data, Post.class);
 
-        // don't have to check for post.authorId() because it is in request header and checked by token
+        // don't have to check for post.authorId() because it is in request header and
+        // checked by token
         if (post.image() == null || post.description() == null) {
             throw new BlankDataException("Missing data!");
         }
