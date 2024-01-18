@@ -20,7 +20,7 @@ public class SocialInfoRepository {
         String sql = "SELECT " +
                 "  u.username AS username, " +
                 "  u.avatar AS avatar, " +
-                "  (SELECT COUNT(*) FROM workouts w WHERE w.user_id = ?) AS workout_count, " +
+                "  (SELECT COUNT(*) FROM posts p WHERE p.user_id = ?) AS posts_count, " +
                 "  (SELECT COUNT(*) FROM follows f WHERE f.following_id = ?) AS follower_count, " +
                 "  (SELECT COUNT(*) FROM follows f WHERE f.follower_id = ?) AS following_count " +
                 "  FROM users u" +
@@ -30,7 +30,7 @@ public class SocialInfoRepository {
                 sql,
                 (rs, rowNum) -> new SocialInfo(
                         rs.getString("username"),
-                        rs.getInt("workout_count"),
+                        rs.getInt("posts_count"),
                         rs.getInt("follower_count"),
                         rs.getInt("following_count"),
                         rs.getString("avatar")
