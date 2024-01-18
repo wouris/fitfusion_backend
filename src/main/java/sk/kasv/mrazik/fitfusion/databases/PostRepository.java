@@ -10,22 +10,23 @@ import java.util.UUID;
 
 public interface PostRepository extends JpaRepository<Post, UUID> {
 
-    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, u.avatar, u.username, p.createdAt)" +
-            "FROM posts p " +
-            "INNER JOIN follows f ON p.userId = f.followingId " +
-            "LEFT JOIN users u ON p.userId = u.id " +
-            "WHERE f.followerId = ?1 " +
-            "AND p.id NOT IN (SELECT l.postId FROM likes l WHERE l.userId = ?1) " +
-            "ORDER BY p.createdAt DESC " +
-            "LIMIT ?2 OFFSET ?3")
+    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, (SELECT u2.avatar FROM users u2 WHERE u2.id = p.userId), u.username, p.createdAt)" +
+                "FROM posts p " +
+                "INNER JOIN follows f ON p.userId = f.followingId " +
+                "LEFT JOIN users u ON p.userId = u.id " +
+                "WHERE f.followerId = ?1 " +
+                "AND p.id NOT IN (SELECT l.postId FROM likes l WHERE l.userId = ?1) " +
+                "ORDER BY p.createdAt DESC " +
+                "LIMIT ?2 OFFSET ?3"
+          )
     Set<PostDTO> findPostsByFollowing(UUID userId, int pageSize, int pageOffset);
 
-    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, u.avatar, u.username, p.createdAt) " +
+    @Query("SELECT new sk.kasv.mrazik.fitfusion.models.classes.social.post.PostDTO(p.id, p.image, p.description, (SELECT u2.avatar FROM users u2 WHERE u2.id = p.userId), u.username, p.createdAt) " +
             "FROM posts p " +
             "LEFT JOIN users u ON p.userId = u.id " +
             "WHERE p.userId != ?1 " +
             "AND p.userId NOT IN (SELECT f.followingId FROM follows f WHERE f.followerId = ?1) " +
-           "AND p.id NOT IN (SELECT l.postId FROM likes l WHERE l.userId = ?1) " +
+            "AND p.id NOT IN (SELECT l.postId FROM likes l WHERE l.userId = ?1) " +
             "AND p.id NOT IN (SELECT p2.id FROM posts p2 " +
             "INNER JOIN follows f ON p2.userId = f.followingId " +
             "WHERE f.followerId = ?1) " +
